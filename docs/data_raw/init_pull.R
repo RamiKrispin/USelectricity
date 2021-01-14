@@ -23,12 +23,13 @@ eia_series <- function(api_key, series_id){
   return(output)
 }
 
-#----------- Set a uniform end time for all series -----------
-end_time <- as.POSIXct("2020-11-14 00:00:00", tz = "UTC") - lubridate::hours(1)
+
+api_key <- Sys.getenv("eia_key")
 
 # Demand for United States Lower 48 (region), hourly - UTC time
 # Units: megawatthours
 # Series ID: EBA.US48-ALL.D.H
+
 us_demand1<- eia_series(api_key = api_key, series_id  = "EBA.US48-ALL.D.H") %>%
   dplyr::mutate(type = "demand") %>%
   dplyr::arrange(date_time)
@@ -80,5 +81,3 @@ plotly::plot_ly(data = us_elec,
                 color = ~ type,
                 type = "scatter",
                 mode = "lines")
-
-

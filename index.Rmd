@@ -1,36 +1,41 @@
 ---
-title: "Untitled"
+title: "US Electricity"
 output: 
   flexdashboard::flex_dashboard:
-    orientation: columns
-    vertical_layout: fill
+    vertical_layout: scroll
 ---
 
 ```{r setup, include=FALSE}
 library(flexdashboard)
+
+`%>%` <- magrittr::`%>%`
+
+load("./data/us_elec.rda")
 ```
 
-Column {data-width=650}
------------------------------------------------------------------------
 
-### Chart A
 
-```{r}
 
-```
+### Demand and Supply
 
-Column {data-width=350}
------------------------------------------------------------------------
+```{r }
+start <- max(us_elec$date_time) - lubridate::hours(48)
 
-### Chart B
+df <- us_elec %>% dplyr::filter(date_time > start) 
 
-```{r}
+df$date_time_us <- lubridate::with_tz(time = df$date_time, tzone = "US/Eastern")
+ 
 
-```
+p <- plotly::plot_ly(data = df,
+                x = ~ date_time_us,
+                y = ~ series,
+                color = ~ type,
+                type = "scatter",
+                mode = "lines") %>%
+  plotly::layout(title = "Demand and Generation for United States Lower 48",
+                 yaxis = list(title = "Megawatt-Hour"),
+                 xaxis = list(title = "Eastern Time<br> Source: US Energy Information Administration"))
 
-### Chart C
-
-```{r}
-
+p
 ```
 

@@ -8,9 +8,9 @@
 
 
 
-<title>Untitled</title>
+<title>US Electricity</title>
 
-<meta property="og:title" content="Untitled" />
+<meta property="og:title" content="US Electricity" />
 
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
 
@@ -29,6 +29,13 @@ window.FlexDashboardComponents = [];
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
 <script src="site_libs/stickytableheaders-0.1.19/jquery.stickytableheaders.min.js"></script>
+<script src="site_libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
+<script src="site_libs/plotly-binding-4.9.2.1/plotly.js"></script>
+<script src="site_libs/typedarray-0.1/typedarray.min.js"></script>
+<link href="site_libs/crosstalk-1.1.0.1/css/crosstalk.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.1.0.1/js/crosstalk.min.js"></script>
+<link href="site_libs/plotly-htmlwidgets-css-1.52.2/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="site_libs/plotly-main-1.52.2/plotly-latest.min.js"></script>
 <style type="text/css">
 
 /*
@@ -775,15 +782,6 @@ body {
   font-weight: 500;
 }
 
-@media only screen and (min-width: 768px) {
-html, body {
-  height: 100%;
-}
-
-#dashboard-container {
-  height: 100%;
-}
-}
 </style>
 
 
@@ -806,7 +804,7 @@ html, body {
   
 </span>
 <span class="navbar-brand">
-  Untitled
+  US Electricity
   <span class="navbar-author">
         </span>
 </span>
@@ -2587,29 +2585,13 @@ window.FlexDashboardComponents.push({
 
 <div id="dashboard-container">
 
-<div id="column" class="section level2" data-width="650">
-<h2 data-width="650">Column</h2>
-<div id="chart-a" class="section level3">
-<h3>Chart A</h3>
+<div id="demand-and-supply" class="section level3">
+<h3>Demand and Supply</h3>
 <div class="knitr-options" data-fig-width="576" data-fig-height="460">
 
 </div>
-</div>
-</div>
-<div id="column-1" class="section level2" data-width="350">
-<h2 data-width="350">Column</h2>
-<div id="chart-b" class="section level3">
-<h3>Chart B</h3>
-<div class="knitr-options" data-fig-width="576" data-fig-height="460">
-
-</div>
-</div>
-<div id="chart-c" class="section level3">
-<h3>Chart C</h3>
-<div class="knitr-options" data-fig-width="576" data-fig-height="460">
-
-</div>
-</div>
+<div id="htmlwidget-4158d65d4ff219aa3a81" style="width:576px;height:460.8px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-4158d65d4ff219aa3a81">{"x":{"visdat":{"8d22aee259a":["function () ","plotlyVisDat"]},"cur_data":"8d22aee259a","attrs":{"8d22aee259a":{"x":{},"y":{},"mode":"lines","color":{},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Demand and Generation for United States Lower 48","yaxis":{"domain":[0,1],"automargin":true,"title":"Megawatt-Hour"},"xaxis":{"domain":[0,1],"automargin":true,"title":"Eastern Time<br> Source: US Energy Information Administration"},"hovermode":"closest","showlegend":true},"source":"A","config":{"showSendToCloud":false},"data":[{"x":["2021-01-12 07:00:00","2021-01-12 08:00:00","2021-01-12 09:00:00","2021-01-12 10:00:00","2021-01-12 11:00:00","2021-01-12 12:00:00","2021-01-12 13:00:00","2021-01-12 14:00:00","2021-01-12 15:00:00","2021-01-12 16:00:00","2021-01-12 17:00:00","2021-01-12 18:00:00","2021-01-12 19:00:00","2021-01-12 20:00:00","2021-01-12 21:00:00","2021-01-12 22:00:00","2021-01-12 23:00:00","2021-01-13 00:00:00","2021-01-13 01:00:00","2021-01-13 02:00:00","2021-01-13 03:00:00","2021-01-13 04:00:00","2021-01-13 05:00:00","2021-01-13 06:00:00","2021-01-13 07:00:00","2021-01-13 08:00:00","2021-01-13 09:00:00","2021-01-13 10:00:00","2021-01-13 11:00:00","2021-01-13 12:00:00","2021-01-13 13:00:00","2021-01-13 14:00:00","2021-01-13 15:00:00","2021-01-13 16:00:00","2021-01-13 17:00:00","2021-01-13 18:00:00","2021-01-13 19:00:00","2021-01-13 20:00:00","2021-01-13 21:00:00","2021-01-13 22:00:00","2021-01-13 23:00:00","2021-01-14 00:00:00","2021-01-14 01:00:00","2021-01-14 02:00:00","2021-01-14 03:00:00","2021-01-14 04:00:00","2021-01-14 05:00:00","2021-01-14 06:00:00"],"y":[479950,508860,525244,526692,517837,505363,493095,482118,472591,465982,468666,484126,503300,511116,511308,503146,486847,468150,452529,440986,436080,435013,439375,453867,481736,511689,526359,522256,508135,491576,476711,463904,455550,451109,452858,467897,484908,493491,493565,484436,468629,451505,435569,425823,422046,419929,424338,436591],"mode":"lines","type":"scatter","name":"demand","marker":{"color":"rgba(102,194,165,1)","line":{"color":"rgba(102,194,165,1)"}},"textfont":{"color":"rgba(102,194,165,1)"},"error_y":{"color":"rgba(102,194,165,1)"},"error_x":{"color":"rgba(102,194,165,1)"},"line":{"color":"rgba(102,194,165,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2021-01-12 07:00:00","2021-01-12 08:00:00","2021-01-12 09:00:00","2021-01-12 10:00:00","2021-01-12 11:00:00","2021-01-12 12:00:00","2021-01-12 13:00:00","2021-01-12 14:00:00","2021-01-12 15:00:00","2021-01-12 16:00:00","2021-01-12 17:00:00","2021-01-12 18:00:00","2021-01-12 19:00:00","2021-01-12 20:00:00","2021-01-12 21:00:00","2021-01-12 22:00:00","2021-01-12 23:00:00","2021-01-13 00:00:00"],"y":[473051,501945,518537,521102,512130,498307,485259,474866,465252,458546,461187,478140,495987,505128,504920,496722,480315,461659],"mode":"lines","type":"scatter","name":"generation","marker":{"color":"rgba(141,160,203,1)","line":{"color":"rgba(141,160,203,1)"}},"textfont":{"color":"rgba(141,160,203,1)"},"error_y":{"color":"rgba(141,160,203,1)"},"error_x":{"color":"rgba(141,160,203,1)"},"line":{"color":"rgba(141,160,203,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 </div>
 
 </div>
@@ -2634,7 +2616,7 @@ $(document).ready(function () {
 $(document).ready(function () {
   FlexDashboard.init({
     theme: "cosmo",
-    fillPage: true,
+    fillPage: false,
     orientation: "columns",
     storyboard: false,
     defaultFigWidth: 576,
