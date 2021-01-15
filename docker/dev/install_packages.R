@@ -1,7 +1,5 @@
 # installing package imports packages
 pkg_list <- c("dplyr",
-              "data.table",
-              "devtools",
               "lubridate",
               "magrittr",
               "rmarkdown",
