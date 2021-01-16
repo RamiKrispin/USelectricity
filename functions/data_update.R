@@ -72,10 +72,10 @@ update_data <- function(){
   
   if(refresh_flag){
   save(us_elec, file = "./data/us_elec.rda")
-    cat("Done.../n")
+    cat("Done...\n")
     return(TRUE)
   } else{
-    cat("Updates are not available.../n")
+    cat("Updates are not available...\n")
     return(FALSE)
   }
 }
