@@ -17,6 +17,6 @@ jobs:
       - name: Data refresh
         env:     
           api_key: ${{ secrets.TEST }}
-        run: echo $api_key
+        run: echo ${{ secrets.TEST }}
         #run: bash ./test.sh $api_key
           # run: bash ./data_raw/data_refresh.sh "main" "$api_key"
