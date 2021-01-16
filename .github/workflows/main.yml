@@ -21,5 +21,5 @@ jobs:
       - shell: bash
         env:
           SUPER_SECRET: ${{ secrets.TEST }}
-        run: bash ./test.sh $SUPER_SECRET
+        run: bash ./test.sh "$SUPER_SECRET"
           # run: bash ./data_raw/data_refresh.sh "main" "$api_key"
