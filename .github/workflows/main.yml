@@ -1,8 +1,8 @@
 name: Data Refresh
 
-on:
-  schedule:  
-    - cron:  '0 */1 * * *'
+on: push
+  #schedule:  
+  #  - cron:  '0 */1 * * *'
 jobs:
   build:
     name: refresh the dashboard
@@ -15,7 +15,7 @@ jobs:
         with: 
           ref: 'main'
       - name: Data refresh
-        run: bash ./test.sh "$api_key"
         env:     
           api_key: ${{ secrets.test }}
+        run: bash ./test.sh "$secrets.test"  
           # run: bash ./data_raw/data_refresh.sh "main" "$api_key"
