@@ -15,4 +15,4 @@ jobs:
         with: 
           ref: 'main'
       - name: Data refresh
-        run: bash ./data_raw/data_refresh.sh
+        run: bash ./data_raw/data_refresh.sh "main"
