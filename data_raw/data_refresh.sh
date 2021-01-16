@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-Rscript -e "source('./functions/data_update.R');if(update_data()){rmarkdown::render_site()}"
+echo $2
+#Rscript -e "source('./functions/data_update.R');if(update_data()){rmarkdown::render_site()}"
 
 
 if [[ "$(git status --porcelain)" != "" ]]; then
