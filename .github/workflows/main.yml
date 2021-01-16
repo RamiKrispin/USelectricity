@@ -15,12 +15,12 @@ jobs:
         with: 
           ref: 'main'
       - name: Data refresh
+        run: |
+            echo "$API_KEY"
+            bash ./test.sh "$API_KEY"
         env:     
-          api_key: ${{ secrets.TEST }}
-        run: bash ./test.sh ${{ secrets.TEST }}
+          API_KEY: ${{ secrets.TEST }}
       - shell: bash
         env:
           SUPER_SECRET: ${{ secrets.TEST }}
-        if: ${{ secrets.TEST = test1 }}
-        run: echo "good"
           # run: bash ./data_raw/data_refresh.sh "main" "$api_key"
