@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-Rscript -e "source('./test.R')" 10 20 a
+Rscript -e "source('./test.R')" $1 
