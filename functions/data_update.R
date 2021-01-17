@@ -1,10 +1,10 @@
 #' Updating the Data
 #' @description The function load the existing data and pull additional data, if available
-update_data <- function(){
+update_data <- function(api_key = Sys.getenv("eia_key")){
+  cat("Check for updates...\n")
   source("./functions/eia_query.R")
   load("./data/us_elec.rda")
   `%>%` <- magrittr::`%>%`
-  api_key <- Sys.getenv("eia_key")
   demand_df <- us_elec %>% dplyr::filter(type == "demand")
   refresh_flag <- FALSE
   time_str_d <- as.character(max(demand_df$date_time) + lubridate::hours(1))
