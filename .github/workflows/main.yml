@@ -16,13 +16,6 @@ jobs:
           ref: 'main'
       - name: Data refresh
         run: |
-            echo "$API_KEY"
-            bash ./test.sh "$API_KEY"
-            if [ "$API_KEY" == "test" ]
-            then
-              echo "Good"
-            else 
-              echo "Bad.."
-            fi
+            bash ./data_raw/data_refresh.sh "main" "$API_KEY" 
         env:     
-          API_KEY: ${{ secrets.TEST }}
+          API_KEY: ${{ secrets.API_KEY }}
