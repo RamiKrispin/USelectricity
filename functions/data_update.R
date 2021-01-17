@@ -16,7 +16,9 @@ update_data <- function(api_key = Sys.getenv("eia_key")){
   
   demand_new <- NULL
   tryCatch(
-    demand_new <- eia_query(api_key = api_key, series_id = series_id_d, start = start_d),
+    demand_new <- eia_query(api_key = api_key, 
+                            series_id = series_id_d, 
+                            start = start_d),
     error = function(c){
       base::message(paste("Error,", c, sep = " "))
     }
