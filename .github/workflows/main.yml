@@ -18,4 +18,4 @@ jobs:
         run: |
             bash ./data_raw/data_refresh.sh "main" "$API_KEY" 
         env:     
-          API_KEY: ${{ secrets.API_KEY }}
+          API_KEY: ${{ secrets.EIA_KEY }}
