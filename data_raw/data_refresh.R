@@ -1,3 +1,10 @@
 api_key <- commandArgs(trailingOnly = TRUE)
 source('./functions/data_update.R')
-update_data(api_key = api_key)
+
+cat("str\n")
+str(api_key)
+cat("nchar\n")
+nchar(api_key)
+cat("nchar2\n")
+nchar(api_key[1])
+update_data(api_key = api_key[1])
