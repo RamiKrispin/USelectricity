@@ -16,6 +16,6 @@ jobs:
           ref: 'main'
       - name: Data refresh
         run: |
-            bash ./data_raw/data_refresh.sh "main" "$API_KEY"
+            bash ./data_raw/data_refresh.sh "main" "$API_KEY" 
         env:     
           API_KEY: ${{ secrets.API_KEY }}
