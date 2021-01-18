@@ -7,9 +7,16 @@ update_data <- function(api_key = Sys.getenv("eia_key")){
   `%>%` <- magrittr::`%>%`
   demand_df <- us_elec %>% dplyr::filter(type == "demand")
   refresh_flag <- FALSE
+  
   time_str_d <- as.character(max(demand_df$date_time) + lubridate::hours(1))
+  if(lubridate::hour(max(demand_df$date_time)) != 23) {
   start_d <- paste(gsub("-", "",substr(time_str_d, 1, 10)), "T",
                    substr(time_str_d, 12, 13), "Z", sep = "")
+  } else{
+    start_d <- paste(gsub("-", "",substr(time_str_d, 1, 10)), "T",
+                     "00", "Z", sep = "")
+  }
+  
   
   
   series_id_d  <- "EBA.US48-ALL.D.H"
@@ -43,8 +50,14 @@ update_data <- function(api_key = Sys.getenv("eia_key")){
     dplyr::filter(type == "generation")
   
   time_str_g <- as.character(max(generation_df$date_time) + lubridate::hours(1))
-  start_g <- paste(gsub("-", "",substr(time_str_g, 1, 10)), "T",
-                   substr(time_str_g, 12, 13), "Z", sep = "")
+  
+  if(lubridate::hour(max(generation_df$date_time)) != 23) {
+    start_g <- paste(gsub("-", "",substr(time_str_g, 1, 10)), "T",
+                     substr(time_str_g, 12, 13), "Z", sep = "")
+  } else{
+    start_g <- paste(gsub("-", "",substr(time_str_g, 1, 10)), "T",
+                     "00", "Z", sep = "")
+  }
   
   
   series_id_g  <- "EBA.US48-ALL.NG.H"
