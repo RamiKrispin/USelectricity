@@ -21,7 +21,8 @@
 window.FlexDashboardComponents = [];
 </script>
 
-<script src="site_libs/jquery-3.5.1/jquery.min.js"></script>
+<script src="site_libs/header-attrs-2.5/header-attrs.js"></script>
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
@@ -31,8 +32,8 @@ window.FlexDashboardComponents = [];
 <script src="site_libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
 <script src="site_libs/plotly-binding-4.9.3/plotly.js"></script>
 <script src="site_libs/typedarray-0.1/typedarray.min.js"></script>
-<link href="site_libs/crosstalk-1.1.1/css/crosstalk.css" rel="stylesheet" />
-<script src="site_libs/crosstalk-1.1.1/js/crosstalk.min.js"></script>
+<link href="site_libs/crosstalk-1.1.0.1/css/crosstalk.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.1.0.1/js/crosstalk.min.js"></script>
 <link href="site_libs/plotly-htmlwidgets-css-1.57.1/plotly-htmlwidgets.css" rel="stylesheet" />
 <script src="site_libs/plotly-main-1.57.1/plotly-latest.min.js"></script>
 <style type="text/css">
@@ -839,8 +840,7 @@ var FlexDashboard = (function () {
       defaultFigWidthMobile: 360,
       defaultFigHeightMobile: 461,
       isMobile: false,
-      isPortrait: false,
-      resize_reload: true
+      isPortrait: false
     });
   };
 
@@ -893,9 +893,9 @@ var FlexDashboard = (function () {
         globalSidebar.addClass('level3');
         var h1 = globalSidebar.children('h1');
         var h3 = $('<h3></h3>');
-        h3.append(h1.contents());
+        h3.html(h1.html());
         h3.insertBefore(h1);
-        h1.detach();
+        h1.remove();
 
         // move it into the first page
         var page = dashboardContainer.find('.section.level1').first();
@@ -960,29 +960,16 @@ var FlexDashboard = (function () {
     initPrismHighlighting();
 
     // record mobile and orientation state then register a handler
-    // to refresh if resize_reload is set to true and it changes
+    // to refresh if it changes
     _options.isMobile = isMobilePhone();
     _options.isPortrait = isPortrait();
-    if (_options.resize_reload) {
-      $(window).on('resize', function() {
-        if (_options.isMobile !== isMobilePhone() ||
-            _options.isPortrait !== isPortrait()) {
-          window.location.reload();
-        }
-      });
-    } else {
-      // if in desktop mode and resizing to mobile, make sure the heights are 100%
-      // This enforces what `fillpage.css` does for "wider" pages.
-      // Since we are not reloading once the page becomes small, we need to force the height to 100%
-      // This is a new situation introduced when `_options.resize_reload` is `false`
-      if (! _options.isMobile) {
-        // only add if `fillpage.css` was added in the first place
-        if (_options.fillPage) {
-          // fillpage.css
-          $("html,body,#dashboard").css("height", "100%");
-        }
+    $(window).on('resize', function() {
+      if (_options.isMobile !== isMobilePhone() ||
+          _options.isPortrait !== isPortrait()) {
+        window.location.reload();
       }
-    }
+    });
+
     // trigger layoutcomplete event
     dashboardContainer.trigger('flexdashboard:layoutcomplete');
   }
@@ -1094,10 +1081,10 @@ var FlexDashboard = (function () {
     if (active)
       wrapper.addClass('active');
 
-    // get a reference to the h1, discover its inner contens, then detach it
+    // get a reference to the h1, discover it's id and title, then remove it
     var h1 = wrapper.find('h1').first();
-    var title = h1.contents();
-    h1.detach();
+    var title = h1.html();
+    h1.remove();
 
     // create a navbar item
     var li = $('<li></li>');
@@ -1127,14 +1114,7 @@ var FlexDashboard = (function () {
 
       // get the name of the icon set and icon
       var dashPos = icon.indexOf("-");
-      var iconSet = null;
-      var iconSplit = icon.split(" ");
-      if (iconSplit.length > 1) {
-        iconSet = iconSplit[0];
-        icon = iconSplit.slice(1).join(" ");
-      } else {
-        iconSet = icon.substring(0, dashPos);
-      }
+      var iconSet = icon.substring(0, dashPos);
       var iconName = icon.substring(dashPos + 1);
 
       // create the icon
@@ -1235,9 +1215,9 @@ var FlexDashboard = (function () {
       sidebar.wrapInner('<div class="section level3"></div>');
       var h2 = sidebar.find('h2');
       var h3 = $('<h3></h3>');
-      h3.append(h2.contents());
+      h3.html(h2.html());
       h3.insertBefore(h2);
-      h2.detach();
+      h2.remove();
 
       // wipeout h2 elements then enclose them in a single h2
       var level2 = page.find('div.section.level2');
@@ -1379,8 +1359,8 @@ var FlexDashboard = (function () {
       // extract the title from the h3
       var li = $('<li></li>');
       var h3 = frame.children('h3');
-      li.append(h3.contents());
-      h3.detach();
+      li.html(h3.html());
+      h3.remove();
       ul.append(li);
 
       // extract commentary
@@ -1776,7 +1756,7 @@ var FlexDashboard = (function () {
 
     // add the title
     var chartTitle = $('<div class="chart-title"></div>');
-    chartTitle.append(title);
+    chartTitle.html(title);
     chart.prepend(chartTitle);
 
     // add the notes section
@@ -1832,11 +1812,10 @@ var FlexDashboard = (function () {
 
       // get the heading element within it and grab it's text
       var heading = tab.find('h' + tabLevel + ':first');
-      var headingDom = heading.contents();
+      var headingText = heading.html();
 
       // build and append the tab list item
-      var a = $('<a role="tab" data-toggle="tab"></a>');
-      a.append(headingDom);
+      var a = $('<a role="tab" data-toggle="tab">' + headingText + '</a>');
       a.attr('href', '#' + id);
       a.attr('aria-controls', id);
       var li = $('<li role="presentation"></li>');
@@ -1959,8 +1938,8 @@ var FlexDashboard = (function () {
     var h3 = container.children('h3').first();
     var title = '';
     if (!container.hasClass('no-title'))
-      title = h3.contents();
-    h3.detach();
+      title = h3.html();
+    h3.remove();
     return title;
   }
 
@@ -1971,11 +1950,11 @@ var FlexDashboard = (function () {
     var caption = chartContent.children('div.image-container')
                               .children('p.caption');
     if (blockquote.length) {
-      chartNotes.empty().append(blockquote.children('p:first-child').contents());
+      chartNotes.html(blockquote.children('p:first-child').html());
       blockquote.remove();
       return true;
     } else if (caption.length) {
-      chartNotes.empty().append(caption.contents());
+      chartNotes.html(caption.html());
       caption.remove();
       return true;
     } else {
@@ -2035,14 +2014,14 @@ var FlexDashboard = (function () {
   function handleLocationHash() {
 
     // restore tab/page from bookmark
-    var hash = window.decodeURIComponent(window.location.hash);
+    var hash = window.location.hash;
     if (hash.length > 0)
       $('ul.nav a[href="' + hash + '"]').tab('show');
     FlexDashboardUtils.manageActiveNavbarMenu();
 
     // navigate to a tab when the history changes
     window.addEventListener("popstate", function(e) {
-      var hash = window.decodeURIComponent(window.location.hash);
+      var hash = window.location.hash;
       var activeTab = $('ul.nav a[href="' + hash + '"]');
       if (activeTab.length) {
         activeTab.tab('show');
@@ -2505,7 +2484,7 @@ window.FlexDashboardComponents.push({
 
     // caption
     var caption = $('<p class="caption"></p>');
-    caption.append(chartTitle);
+    caption.html(chartTitle);
 
     // build inner div for value box and add it
     var inner = $('<div class="inner"></div>');
@@ -2518,15 +2497,9 @@ window.FlexDashboardComponents.push({
     valueBox.append(icon);
     function setIcon(chartIcon) {
       var iconLib = "";
-      var iconSplit = chartIcon.split(" ");
-      if (iconSplit.length > 1) {
-        iconLib = iconSplit[0];
-        chartIcon = iconSplit.slice(1).join(" ");
-      } else {
-        var components = chartIcon.split("-");
-        if (components.length > 1)
-          iconLib = components[0];
-      }
+      var components = chartIcon.split("-");
+      if (components.length > 1)
+        iconLib = components[0];
       icon.children('i').attr('class', iconLib + ' ' + chartIcon);
     }
     var chartIcon = valueBox.attr('data-icon');
@@ -2606,6 +2579,8 @@ window.FlexDashboardComponents.push({
     );
   }
 });
+
+
 </script>
 
 <div id="dashboard-container">
@@ -2615,8 +2590,8 @@ window.FlexDashboardComponents.push({
 <div class="knitr-options" data-fig-width="576" data-fig-height="460">
 
 </div>
-<div id="htmlwidget-a2e4e4a7e42892059343" style="width:576px;height:460.8px;" class="plotly html-widget"></div>
-<script type="application/json" data-for="htmlwidget-a2e4e4a7e42892059343">{"x":{"visdat":{"7053f32450":["function () ","plotlyVisDat"]},"cur_data":"7053f32450","attrs":{"7053f32450":{"x":{},"y":{},"mode":"lines","color":{},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Demand and Generation for United States Lower 48","yaxis":{"domain":[0,1],"automargin":true,"title":"Megawatt-Hour"},"xaxis":{"domain":[0,1],"automargin":true,"title":"Eastern Time<br> Source: US Energy Information Administration"},"hovermode":"closest","showlegend":true},"source":"A","config":{"showSendToCloud":false},"data":[{"x":["2021-01-28 08:00:00.000000","2021-01-28 09:00:00.000000","2021-01-28 10:00:00.000000","2021-01-28 11:00:00.000000","2021-01-28 12:00:00.000000","2021-01-28 13:00:00.000000","2021-01-28 14:00:00.000000","2021-01-28 15:00:00.000000","2021-01-28 16:00:00.000000","2021-01-28 17:00:00.000000","2021-01-28 18:00:00.000000","2021-01-28 19:00:00.000000","2021-01-28 20:00:00.000000","2021-01-28 21:00:00.000000","2021-01-28 22:00:00.000000","2021-01-28 23:00:00.000000","2021-01-29 00:00:00.000000","2021-01-29 01:00:00.000000","2021-01-29 02:00:00.000000","2021-01-29 03:00:00.000000","2021-01-29 04:00:00.000000","2021-01-29 05:00:00.000000","2021-01-29 06:00:00.000000","2021-01-29 07:00:00.000000","2021-01-29 08:00:00.000000","2021-01-29 09:00:00.000000","2021-01-29 10:00:00.000000","2021-01-29 11:00:00.000000","2021-01-29 12:00:00.000000","2021-01-29 13:00:00.000000","2021-01-29 14:00:00.000000","2021-01-29 15:00:00.000000","2021-01-29 16:00:00.000000","2021-01-29 17:00:00.000000","2021-01-29 18:00:00.000000","2021-01-29 19:00:00.000000","2021-01-29 20:00:00.000000","2021-01-29 21:00:00.000000","2021-01-29 22:00:00.000000","2021-01-29 23:00:00.000000","2021-01-30 00:00:00.000000","2021-01-30 01:00:00.000000","2021-01-30 02:00:00.000000","2021-01-30 03:00:00.000000","2021-01-30 04:00:00.000000","2021-01-30 05:00:00.000000","2021-01-30 06:00:00.000000","2021-01-30 07:00:00.000000"],"y":[505290,522462,528819,524922,509130,498272,486382,484813,475274,480848,495101,497521,498851,497063,487000,471043,454499,461532,459013,452822,457583,463023,473632,499097,533014,545578,542838,534044,512150,501759,487885,471784,467871,472020,481761,498852,508768,507745,501115,488179,474346,462014,452399,445777,437352,437777,442693,452399],"mode":"lines","type":"scatter","name":"demand","marker":{"color":"rgba(102,194,165,1)","line":{"color":"rgba(102,194,165,1)"}},"textfont":{"color":"rgba(102,194,165,1)"},"error_y":{"color":"rgba(102,194,165,1)"},"error_x":{"color":"rgba(102,194,165,1)"},"line":{"color":"rgba(102,194,165,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2021-01-28 08:00:00.000000","2021-01-28 09:00:00.000000","2021-01-28 10:00:00.000000","2021-01-28 11:00:00.000000","2021-01-28 12:00:00.000000","2021-01-28 13:00:00.000000","2021-01-28 14:00:00.000000","2021-01-28 15:00:00.000000","2021-01-28 16:00:00.000000","2021-01-28 17:00:00.000000","2021-01-28 18:00:00.000000","2021-01-28 19:00:00.000000","2021-01-28 20:00:00.000000","2021-01-28 21:00:00.000000","2021-01-28 22:00:00.000000","2021-01-28 23:00:00.000000","2021-01-29 00:00:00.000000","2021-01-29 01:00:00.000000","2021-01-29 02:00:00.000000","2021-01-29 03:00:00.000000","2021-01-29 04:00:00.000000","2021-01-29 05:00:00.000000","2021-01-29 06:00:00.000000","2021-01-29 07:00:00.000000","2021-01-29 08:00:00.000000","2021-01-29 09:00:00.000000","2021-01-29 10:00:00.000000","2021-01-29 11:00:00.000000","2021-01-29 12:00:00.000000","2021-01-29 13:00:00.000000","2021-01-29 14:00:00.000000","2021-01-29 15:00:00.000000","2021-01-29 16:00:00.000000","2021-01-29 17:00:00.000000","2021-01-29 18:00:00.000000","2021-01-29 19:00:00.000000","2021-01-29 20:00:00.000000","2021-01-29 21:00:00.000000","2021-01-29 22:00:00.000000","2021-01-29 23:00:00.000000","2021-01-30 00:00:00.000000"],"y":[502146,520607,524733,519876,510253,499243,487520,480329,473755,475530,489436,508718,520986,522925,512804,498750,480763,466375,457491,453036,452695,456768,470483,498504,526872,539505,534599,523839,508955,493892,483227,472995,467666,465755,476547,488740,499190,498062,489899,479124,465034],"mode":"lines","type":"scatter","name":"generation","marker":{"color":"rgba(141,160,203,1)","line":{"color":"rgba(141,160,203,1)"}},"textfont":{"color":"rgba(141,160,203,1)"},"error_y":{"color":"rgba(141,160,203,1)"},"error_x":{"color":"rgba(141,160,203,1)"},"line":{"color":"rgba(141,160,203,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-e824b526418c970da869" style="width:576px;height:460.8px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-e824b526418c970da869">{"x":{"visdat":{"39d4543ce8a":["function () ","plotlyVisDat"]},"cur_data":"39d4543ce8a","attrs":{"39d4543ce8a":{"x":{},"y":{},"mode":"lines","color":{},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Demand and Generation for United States Lower 48","yaxis":{"domain":[0,1],"automargin":true,"title":"Megawatt-Hour"},"xaxis":{"domain":[0,1],"automargin":true,"title":"Eastern Time<br> Source: US Energy Information Administration"},"hovermode":"closest","showlegend":true},"source":"A","config":{"showSendToCloud":false},"data":[{"x":["2021-01-28 14:00:00.000000","2021-01-28 15:00:00.000000","2021-01-28 16:00:00.000000","2021-01-28 17:00:00.000000","2021-01-28 18:00:00.000000","2021-01-28 19:00:00.000000","2021-01-28 20:00:00.000000","2021-01-28 21:00:00.000000","2021-01-28 22:00:00.000000","2021-01-28 23:00:00.000000","2021-01-29 00:00:00.000000","2021-01-29 01:00:00.000000","2021-01-29 02:00:00.000000","2021-01-29 03:00:00.000000","2021-01-29 04:00:00.000000","2021-01-29 05:00:00.000000","2021-01-29 06:00:00.000000","2021-01-29 07:00:00.000000","2021-01-29 08:00:00.000000","2021-01-29 09:00:00.000000","2021-01-29 10:00:00.000000","2021-01-29 11:00:00.000000","2021-01-29 12:00:00.000000","2021-01-29 13:00:00.000000","2021-01-29 14:00:00.000000","2021-01-29 15:00:00.000000","2021-01-29 16:00:00.000000","2021-01-29 17:00:00.000000","2021-01-29 18:00:00.000000","2021-01-29 19:00:00.000000","2021-01-29 20:00:00.000000","2021-01-29 21:00:00.000000","2021-01-29 22:00:00.000000","2021-01-29 23:00:00.000000","2021-01-30 00:00:00.000000","2021-01-30 01:00:00.000000","2021-01-30 02:00:00.000000","2021-01-30 03:00:00.000000","2021-01-30 04:00:00.000000","2021-01-30 05:00:00.000000","2021-01-30 06:00:00.000000","2021-01-30 07:00:00.000000","2021-01-30 08:00:00.000000","2021-01-30 09:00:00.000000","2021-01-30 10:00:00.000000","2021-01-30 11:00:00.000000","2021-01-30 12:00:00.000000","2021-01-30 13:00:00.000000"],"y":[486382,484813,475274,480848,495101,497521,498851,497063,487000,471043,454499,461532,459013,452822,457583,463023,473632,499097,533014,545578,542838,534044,512150,501759,487885,471784,467871,472020,481761,498852,508768,507745,501115,488179,474346,462014,452399,445777,437352,437777,442693,452399,467420,477306,479266,475719,468744,459050],"mode":"lines","type":"scatter","name":"demand","marker":{"color":"rgba(102,194,165,1)","line":{"color":"rgba(102,194,165,1)"}},"textfont":{"color":"rgba(102,194,165,1)"},"error_y":{"color":"rgba(102,194,165,1)"},"error_x":{"color":"rgba(102,194,165,1)"},"line":{"color":"rgba(102,194,165,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["2021-01-28 14:00:00.000000","2021-01-28 15:00:00.000000","2021-01-28 16:00:00.000000","2021-01-28 17:00:00.000000","2021-01-28 18:00:00.000000","2021-01-28 19:00:00.000000","2021-01-28 20:00:00.000000","2021-01-28 21:00:00.000000","2021-01-28 22:00:00.000000","2021-01-28 23:00:00.000000","2021-01-29 00:00:00.000000","2021-01-29 01:00:00.000000","2021-01-29 02:00:00.000000","2021-01-29 03:00:00.000000","2021-01-29 04:00:00.000000","2021-01-29 05:00:00.000000","2021-01-29 06:00:00.000000","2021-01-29 07:00:00.000000","2021-01-29 08:00:00.000000","2021-01-29 09:00:00.000000","2021-01-29 10:00:00.000000","2021-01-29 11:00:00.000000","2021-01-29 12:00:00.000000","2021-01-29 13:00:00.000000","2021-01-29 14:00:00.000000","2021-01-29 15:00:00.000000","2021-01-29 16:00:00.000000","2021-01-29 17:00:00.000000","2021-01-29 18:00:00.000000","2021-01-29 19:00:00.000000","2021-01-29 20:00:00.000000","2021-01-29 21:00:00.000000","2021-01-29 22:00:00.000000","2021-01-29 23:00:00.000000","2021-01-30 00:00:00.000000"],"y":[487520,480329,473755,475530,489436,508718,520986,522925,512804,498750,480763,466375,457491,453036,452695,456768,470483,498504,526872,539505,534599,523839,508955,493892,483227,472995,467666,465755,476547,488740,499190,498062,489899,479124,465034],"mode":"lines","type":"scatter","name":"generation","marker":{"color":"rgba(141,160,203,1)","line":{"color":"rgba(141,160,203,1)"}},"textfont":{"color":"rgba(141,160,203,1)"},"error_y":{"color":"rgba(141,160,203,1)"},"error_x":{"color":"rgba(141,160,203,1)"},"line":{"color":"rgba(141,160,203,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 </div>
 
 </div>
@@ -2647,8 +2622,7 @@ $(document).ready(function () {
     defaultFigWidth: 576,
     defaultFigHeight: 460,
     defaultFigWidthMobile: 360,
-    defaultFigHeightMobile: 460,
-    resize_reload: true
+    defaultFigHeightMobile: 460
   });
 });
 </script>

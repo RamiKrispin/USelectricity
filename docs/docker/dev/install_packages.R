@@ -5,7 +5,8 @@ pkg_list <- c("dplyr",
               "rmarkdown",
               "flexdashboard",
               "plotly",
-              "reactable")
+              "reactable",
+              "h2o")
 
 install.packages(pkgs = pkg_list, repos = "https://cran.rstudio.com/")
 
