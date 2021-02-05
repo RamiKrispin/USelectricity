@@ -33,14 +33,13 @@ p <- plotly::plot_ly(data = df1,
 
 })
 
-plotly::subplot(lags_plot, nrows = 4)
-
-
-ts.obj <- ts(df1$y, start = c(5), frequency = 24)
-
-TSstudio::ts_cor(ts.obj = ts.obj, lag.max = 24 * 8, seasonal_lags = 7 * 24)
-
-TSstudio::ts_decompose(ts.obj = ts.obj)
+# plotly::subplot(lags_plot, nrows = 4)
+# 
+# ts.obj <- ts(df1$y, start = c(5), frequency = 24)
+# 
+# TSstudio::ts_cor(ts.obj = ts.obj, lag.max = 24 * 8, seasonal_lags = 7 * 24)
+# 
+# TSstudio::ts_decompose(ts.obj = ts.obj)
 
 
 
@@ -204,5 +203,7 @@ hist(fc$y - fc$yhat, breaks = 100)
 
 alpha 
 lambda
-save(m)
+save(alpha, lambda, lags, file = "./forecast/model_setting.RData")
+
+
 
