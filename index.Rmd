@@ -44,11 +44,12 @@ p <- plotly::plot_ly(data = df) %>%
                 line = list(color = "#2ca02c")) %>%
     plotly::add_lines(x = fc$time,
                     y = fc$yhat,
-                    name = "Forecast",
+                    name = "Demand Forecast",
                     line = list(color = "#457b9d", dash = "dash", width = 1)) %>%
   plotly::layout(title = "The United States (Lower 48) Demand for Electricity Forecast",
                  yaxis = list(title = "Megawatt-Hour"),
-                 xaxis = list(title = "Eastern Time<br> Source: US Energy Information Administration")) 
+                 xaxis = list(title = "Eastern Time<br> Source: US Energy Information Administration"),
+                 hovermode = "compare") 
 
 p
 ```
