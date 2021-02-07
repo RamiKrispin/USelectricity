@@ -162,6 +162,7 @@ glm_fc <- function(data,
 
 
 refresh_forecast <- function(){
+  `%>%` <- magrittr::`%>%`
   load("./data/forecast.rda")
   load("./data/us_elec.rda")
   df <-us_elec %>%  
