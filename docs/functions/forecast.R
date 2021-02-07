@@ -1,17 +1,4 @@
 
-# Data ----
-load("./data/us_elec.rda")
-
-df <-us_elec %>%  dplyr::filter(type == "demand") %>%
-  dplyr::select(date_time, y = series) %>%
-  as.data.frame() %>%
-  dplyr::arrange(date_time)
-
-data <- df
-y <- "y"
-date_time <- "date_time"
-lags <- c(1:24, 48, 72, 24 * 7)
-h <- 72
 glm_fc <- function(data, 
                    y, 
                    date_time, 
@@ -19,10 +6,12 @@ glm_fc <- function(data,
                    lags,
                    trend = TRUE,
                    seasonal = list(hour = TRUE,
-                                   day = TRUE,
+                                   yday = TRUE,
                                    wday = TRUE,
                                    month = TRUE,
                                    year = TRUE),
+                   port = 9001,
+                   max_mem_size = NULL,
                    h){
   
   `%>%` <- magrittr::`%>%`
@@ -69,6 +58,7 @@ glm_fc <- function(data,
     for(i in names(seasonal)){
       if(seasonal[[i]])
         labels <- c(labels, i)
+      
       data[[i]] <- eval(parse(text = paste("lubridate::", i, "(data$",
                                            date_time,
                                            ")", sep = "")))
@@ -78,6 +68,9 @@ glm_fc <- function(data,
                                                 ")", sep = "")))
     }
   }
+  
+  
+  
   
   
   for(i in lags){
@@ -91,7 +84,28 @@ glm_fc <- function(data,
   }
   
   
-  h2o::h2o.init(port = 9001)
+  
+  if(any(names(seasonal) %in% c("hour", "yday", "wday", "month", "day"))){
+    future_df[[y]] <- NA
+    future_df$label <- "future"
+    data$label <- "actual"
+    temp <- rbind(data, future_df)
+    
+    for(i in names(seasonal)){
+      if(i  %in% c("hour", "yday", "wday", "month", "day")){
+        temp[[i]] <- factor(temp[[i]], ordered = FALSE)
+      }
+    }
+    
+    data <- temp %>% 
+      dplyr::filter(label == "actual") %>% 
+      dplyr::select(-label)
+    future_df <- temp %>% 
+      dplyr::filter(label == "future") %>% 
+      dplyr::select(-label)
+  }
+  
+  h2o::h2o.init(port = port, max_mem_size = max_mem_size)
   
   data_h <- data[, -which(names(data) == date_time)] %>% 
     as.data.frame() %>%
@@ -110,10 +124,93 @@ glm_fc <- function(data,
                      lambda_search = FALSE)
   
   
+  # Creating the forecast
+  future_df$yhat <- 0
+  
+  fc_df <- future_df[, -which(names(future_df) == date_time)] %>% 
+    as.data.frame() %>%
+    h2o::as.h2o()
+  
+  yhat <- numeric(nrow(fc_df))
+  
+  if(!is.null(lags)){
+    for(r in 1:nrow(fc_df)){
+      
+      for(l in lags){
+        
+        if(l < r){
+          fc_df[r, paste("lag", l, sep = "_")] <-  yhat[r-l]
+        }
+      }
+      
+      yhat[r] <- (h2o::h2o.predict(md, fc_df[r,]))[1,1]
+    }
+  }
   
   
   
+  future_df$yhat <- yhat
   
   
+  h2o::h2o.shutdown(prompt = FALSE)
+  output <- list(forecast = future_df,
+                 coefficients = md@model$coefficients_table)
+  return(output)
+}
+
+
+
+
+refresh_forecast <- function(){
+  load("./data/forecast.rda")
+  load("./data/us_elec.rda")
+  df <-us_elec %>%  
+    dplyr::filter(type == "demand") %>%
+    dplyr::select(date_time, y = series) %>%
+    as.data.frame() %>%
+    dplyr::mutate(time = lubridate::with_tz(time = date_time, tzone = "US/Eastern")) %>%
+    dplyr::arrange(time) %>%
+    dplyr::select(time, y) 
+  if(max(df$time) > max(fc_df$time)){
+    
+    cat("Refresh the forecast...\n")
+    
+    start <- lubridate::ymd_hms(paste(substr(as.character(max(df$time)), 
+                                             1, 
+                                             10), 
+                                      "00:00:00", 
+                                      sep = " "), tz = "US/Eastern")
+    fc <- glm_fc(data = df %>%
+                   dplyr::filter(time < start), 
+                 y = "y", 
+                 date_time = "time", 
+                 alpha = alpha, 
+                 lambda = lambda, 
+                 lags = lags,
+                 trend = TRUE,
+                 seasonal = list(hour = TRUE,
+                                 yday = TRUE,
+                                 wday = TRUE,
+                                 month = TRUE,
+                                 year = TRUE),
+                 port = 9001,
+                 max_mem_size = NULL,
+                 h = 72)
+    
+    fc_df$type <- "archive"
+    
+    fc_df_new <- fc$forecast %>% 
+      dplyr::select(time, yhat) %>%
+      dplyr::mutate(label = as.Date(substr(as.character(min(time)), 
+                                           start = 1, 
+                                           stop = 10)),
+                    type = "latest")  
+    
+    fc_df <- rbind(fc_df, fc_df_new) 
+    save(fc_df, file = "./data/forecast.rda")
+  }
+  
+  cat("Done...\n")
+  return(TRUE)
   
 }

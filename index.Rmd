@@ -11,30 +11,44 @@ library(flexdashboard)
 `%>%` <- magrittr::`%>%`
 
 load("./data/us_elec.rda")
+load("./data/forecast.rda")
 ```
 
 
 
 
-### Demand and Supply
+### Demand Forecast
 
 ```{r }
-start <- max(us_elec$date_time) - lubridate::hours(48)
 
-df <- us_elec %>% dplyr::filter(date_time > start) 
+fc <- fc_df %>% dplyr::filter(type == "latest")
+
+start <- max(us_elec$date_time) - lubridate::hours(24 * 4)
+
+df <- us_elec %>% 
+  dplyr::filter(date_time > start) %>%
+  tidyr::pivot_wider(names_from = type, values_from = series) %>%
+  as.data.frame()
 
 df$date_time_us <- lubridate::with_tz(time = df$date_time, tzone = "US/Eastern")
  
 
-p <- plotly::plot_ly(data = df,
-                x = ~ date_time_us,
-                y = ~ series,
-                color = ~ type,
-                type = "scatter",
-                mode = "lines") %>%
-  plotly::layout(title = "Demand and Generation for United States Lower 48",
+p <- plotly::plot_ly(data = df) %>%
+  plotly::add_lines(x = ~ date_time_us,
+                y = ~ demand,
+                name = "Demand",
+                line = list(color = "#1f77b4")) %>%
+  plotly::add_lines(x = ~ date_time_us,
+                y = ~ generation,
+                name = "Generation",
+                line = list(color = "#2ca02c")) %>%
+    plotly::add_lines(x = fc$time,
+                    y = fc$yhat,
+                    name = "Forecast",
+                    line = list(color = "#457b9d", dash = "dash", width = 1)) %>%
+  plotly::layout(title = "The United States (Lower 48) Demand for Electricity Forecast",
                  yaxis = list(title = "Megawatt-Hour"),
-                 xaxis = list(title = "Eastern Time<br> Source: US Energy Information Administration"))
+                 xaxis = list(title = "Eastern Time<br> Source: US Energy Information Administration")) 
 
 p
 ```
