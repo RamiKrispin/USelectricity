@@ -32,6 +32,12 @@ df <- us_elec %>%
 
 df$date_time_us <- lubridate::with_tz(time = df$date_time, tzone = "US/Eastern")
  
+mape_df <- fc %>% dplyr::left_join(df %>% 
+                                  dplyr::select(time = date_time_us, y = demand), 
+                                by = "time") %>%
+  dplyr::filter(!is.na(y)) %>%
+  dplyr::mutate(apc = abs(y - yhat) / y)
+
 
 p <- plotly::plot_ly(data = df) %>%
   plotly::add_lines(x = ~ date_time_us,
@@ -46,6 +52,11 @@ p <- plotly::plot_ly(data = df) %>%
                     y = fc$yhat,
                     name = "Demand Forecast",
                     line = list(color = "#457b9d", dash = "dash", width = 1)) %>%
+  plotly::add_annotations(text = paste("MAPE: ", round(100 * mean(mape_df$apc), 2), "%", sep = ""), 
+                          xref = "paper",
+                          yref = "paper", 
+                          showarrow = FALSE,
+                          x = 0.95, y = 0.05) %>% 
   plotly::layout(title = "The United States (Lower 48) Demand for Electricity Forecast",
                  yaxis = list(title = "Megawatt-Hour"),
                  xaxis = list(title = "Eastern Time<br> Source: US Energy Information Administration"),
