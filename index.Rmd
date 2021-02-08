@@ -56,7 +56,7 @@ p <- plotly::plot_ly(data = df) %>%
                           xref = "paper",
                           yref = "paper", 
                           showarrow = FALSE,
-                          x = 0.95, y = 0.05) %>% 
+                          x = 0.98, y = 0.05) %>% 
   plotly::layout(title = "The United States (Lower 48) Demand for Electricity Forecast",
                  yaxis = list(title = "Megawatt-Hour"),
                  xaxis = list(title = "Eastern Time<br> Source: US Energy Information Administration"),
