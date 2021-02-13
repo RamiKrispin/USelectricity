@@ -173,15 +173,11 @@ refresh_forecast <- function(){
     dplyr::mutate(time = lubridate::with_tz(time = date_time, tzone = "US/Eastern")) %>%
     dplyr::arrange(time) %>%
     dplyr::select(time, y) 
-  if(max(df$time) > max(fc_df$time)){
+  start <- max(fc_df$time) + lubridate::hours(1)
+  if(max(df$time) >= start){
     
     cat("Refresh the forecast...\n")
-    
-    start <- lubridate::ymd_hms(paste(substr(as.character(max(df$time)), 
-                                             1, 
-                                             10), 
-                                      "00:00:00", 
-                                      sep = " "), tz = "US/Eastern")
+   
     fc <- glm_fc(data = df %>%
                    dplyr::filter(time < start), 
                  y = "y", 
