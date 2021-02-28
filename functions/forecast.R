@@ -11,6 +11,7 @@ glm_fc <- function(data,
                                    month = TRUE,
                                    year = TRUE),
                    port = 9001,
+                   nthreads = 1,
                    max_mem_size = NULL,
                    h){
   
@@ -105,7 +106,9 @@ glm_fc <- function(data,
       dplyr::select(-label)
   }
   
-  h2o::h2o.init(port = port, max_mem_size = max_mem_size)
+  h2o::h2o.init(port = port,
+                nthreads = nthreads,
+                max_mem_size = max_mem_size)
   
   data_h <- data[, -which(names(data) == date_time)] %>% 
     as.data.frame() %>%
