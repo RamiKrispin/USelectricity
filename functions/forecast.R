@@ -177,12 +177,12 @@ refresh_forecast <- function(){
     dplyr::arrange(time) %>%
     dplyr::select(time, y) 
   start <- max(fc_df$time) + lubridate::hours(1)
-  if(max(df$time) > max(fc_df$time)){
+  if(max(df$time) >= start){
     
     cat("Refresh the forecast...\n")
    
     fc <- glm_fc(data = df %>%
-                   dplyr::filter(time < start), 
+                   dplyr::filter(time <= start), 
                  y = "y", 
                  date_time = "time", 
                  alpha = alpha, 
@@ -201,8 +201,9 @@ refresh_forecast <- function(){
     fc_df$type <- "archive"
     
     fc_df_new <- fc$forecast %>% 
-      dplyr::select(time, yhat) %>%
-      dplyr::mutate(label = as.Date(substr(as.character(min(time)), 
+      dplyr::select(time, yhat, index_temp = index) %>%
+      dplyr::mutate(index = index_temp - min(index_temp) + 1,
+                    label = as.Date(substr(as.character(min(time)), 
                                            start = 1, 
                                            stop = 10)),
                     type = "latest")  
