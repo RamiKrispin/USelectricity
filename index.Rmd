@@ -48,6 +48,9 @@ p <- plotly::plot_ly(data = df) %>%
                 y = ~ generation,
                 name = "Generation",
                 line = list(color = "#2ca02c")) %>%
+    plotly::add_ribbons(x = fc$time, 
+                        ymax = fc$upper,
+                        ymin = fc$lower) %>%
     plotly::add_lines(x = fc$time,
                     y = fc$yhat,
                     name = "Demand Forecast",
