@@ -220,6 +220,7 @@ refresh_forecast <- function(){
                                            start = 1, 
                                            stop = 10)),
                     type = "latest") %>%
+<<<<<<< HEAD
       dplyr::select(-index_temp) %>%
       dplyr::left_join(res_summary, by = "index") %>%
       dplyr::mutate(upper = yhat + up,
@@ -227,6 +228,9 @@ refresh_forecast <- function(){
     
     
     head(fc_df_new)
+=======
+      dplyr::select(-index_temp)
+>>>>>>> 57702901c7d03fea63dcd4f6163fd44f593835cb
     
     fc_df <- rbind(fc_df, fc_df_new) 
     save(fc_df, file = "./data/forecast.rda")
