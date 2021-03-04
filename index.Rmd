@@ -36,7 +36,8 @@ mape_df <- fc %>% dplyr::left_join(df %>%
                                   dplyr::select(time = date_time_us, y = demand), 
                                 by = "time") %>%
   dplyr::filter(!is.na(y)) %>%
-  dplyr::mutate(apc = abs(y - yhat) / y)
+  dplyr::mutate(apc = abs(y - yhat) / y,
+                coverage_flag = ifelse(y > upper | y < lower, 1, 0))
 
 
 p <- plotly::plot_ly(data = df) %>%
@@ -55,11 +56,17 @@ p <- plotly::plot_ly(data = df) %>%
                     y = fc$yhat,
                     name = "Demand Forecast",
                     line = list(color = "#457b9d", dash = "dash", width = 1)) %>%
-  plotly::add_annotations(text = paste("MAPE: ", round(100 * mean(mape_df$apc), 2), "%", sep = ""), 
+  plotly::add_annotations(text = paste(paste("MAPE: ", round(100 * mean(mape_df$apc), 2), "%", sep = ""), 
+                                       paste("Coverage: ", round(100 * (nrow(mape_df) - sum(mape_df$coverage_flag) )/ nrow(mape_df), 2), "%", sep = ""), sep = "<br>"),
                           xref = "paper",
                           yref = "paper", 
                           showarrow = FALSE,
                           x = 0.98, y = 0.05) %>% 
+    # plotly::add_annotations(text = paste("Coverage: ", round(100 * (nrow(mape_df) - sum(mape_df$coverage_flag) )/ nrow(mape_df), 2), "%", sep = ""), 
+    #                       xref = "paper",
+    #                       yref = "paper", 
+    #                       showarrow = FALSE,
+    #                       x = 0.98, y = 0.02) %>% 
   plotly::layout(title = "The United States (Lower 48) Demand for Electricity Forecast",
                  yaxis = list(title = "Megawatt-Hour"),
                  xaxis = list(title = "Eastern Time<br> Source: US Energy Information Administration"),
