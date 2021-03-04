@@ -76,6 +76,9 @@ p <- lapply(c(1:12, 69:72), function(i){
 
 plotly::subplot(p, nrows = 4)
 
+save(res_df, file = "./data/residuals.rda")
+
+
 res_metric <- res_df %>% 
   dplyr::group_by(index) %>%
   dplyr::summarise(mean = mean(res),
