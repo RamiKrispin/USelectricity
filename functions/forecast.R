@@ -212,7 +212,8 @@ refresh_forecast <- function(){
                     label = as.Date(substr(as.character(min(time)), 
                                            start = 1, 
                                            stop = 10)),
-                    type = "latest")  
+                    type = "latest") %>%
+      dplyr::select(-index_temp)
     
     fc_df <- rbind(fc_df, fc_df_new) 
     save(fc_df, file = "./data/forecast.rda")
