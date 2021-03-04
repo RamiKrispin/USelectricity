@@ -183,7 +183,7 @@ refresh_forecast <- function(){
     cat("Refresh the forecast...\n")
    
     fc <- glm_fc(data = df %>%
-                   dplyr::filter(time <= start), 
+                   dplyr::filter(time < start), 
                  y = "y", 
                  date_time = "time", 
                  alpha = alpha, 
@@ -199,6 +199,13 @@ refresh_forecast <- function(){
                  max_mem_size = NULL,
                  h = 72)
     
+    res_summary <- res_df %>%
+      dplyr::group_by(index) %>%
+      dplyr::summarise(mean = mean(res),
+                       sd = sd(res), 
+                       .groups = "drop") %>%
+      dplyr::mutate(up = mean + 1.96 * sd, 
+                    low = mean - 1.96 * sd)
     
     
     
@@ -212,7 +219,14 @@ refresh_forecast <- function(){
                     label = as.Date(substr(as.character(min(time)), 
                                            start = 1, 
                                            stop = 10)),
-                    type = "latest")  
+                    type = "latest") %>%
+      dplyr::select(-index_temp) %>%
+      dplyr::left_join(res_summary, by = "index") %>%
+      dplyr::mutate(upper = yhat + up,
+                    lower = yhat + low)
+    
+    
+    head(fc_df_new)
     
     fc_df <- rbind(fc_df, fc_df_new) 
     save(fc_df, file = "./data/forecast.rda")
