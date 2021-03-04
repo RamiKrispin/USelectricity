@@ -167,6 +167,7 @@ glm_fc <- function(data,
 refresh_forecast <- function(){
   `%>%` <- magrittr::`%>%`
   load("./data/forecast.rda")
+  load("./data/residuals.rda")
   load("./data/us_elec.rda")
   load("./forecast/model_setting.RData")
   df <-us_elec %>%  
@@ -197,6 +198,11 @@ refresh_forecast <- function(){
                  port = 9001,
                  max_mem_size = NULL,
                  h = 72)
+    
+    
+    
+    
+    
     
     fc_df$type <- "archive"
     
