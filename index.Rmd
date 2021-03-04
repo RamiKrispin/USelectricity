@@ -10,6 +10,11 @@ library(flexdashboard)
 
 `%>%` <- magrittr::`%>%`
 
+hex_to_rgb <- function(hex){
+  rgb <- paste0(as.numeric(grDevices::col2rgb(hex) %>% base::t()), collapse = ",")
+  return(rgb) 
+}
+
 load("./data/us_elec.rda")
 load("./data/forecast.rda")
 ```
@@ -31,10 +36,10 @@ df <- us_elec %>%
   as.data.frame()
 
 df$date_time_us <- lubridate::with_tz(time = df$date_time, tzone = "US/Eastern")
- 
+
 mape_df <- fc %>% dplyr::left_join(df %>% 
-                                  dplyr::select(time = date_time_us, y = demand), 
-                                by = "time") %>%
+                                     dplyr::select(time = date_time_us, y = demand), 
+                                   by = "time") %>%
   dplyr::filter(!is.na(y)) %>%
   dplyr::mutate(apc = abs(y - yhat) / y,
                 coverage_flag = ifelse(y > upper | y < lower, 1, 0))
@@ -42,31 +47,34 @@ mape_df <- fc %>% dplyr::left_join(df %>%
 
 p <- plotly::plot_ly(data = df) %>%
   plotly::add_lines(x = ~ date_time_us,
-                y = ~ demand,
-                name = "Demand",
-                line = list(color = "#1f77b4")) %>%
+                    y = ~ demand,
+                    name = "Demand",
+                    line = list(color = "#1f77b4")) %>%
   plotly::add_lines(x = ~ date_time_us,
-                y = ~ generation,
-                name = "Generation",
-                line = list(color = "#2ca02c")) %>%
-    plotly::add_ribbons(x = fc$time, 
-                        ymax = fc$upper,
-                        ymin = fc$lower) %>%
-    plotly::add_lines(x = fc$time,
+                    y = ~ generation,
+                    name = "Generation",
+                    line = list(color = "#2ca02c")) %>%
+  plotly::add_ribbons(x = fc$time, 
+                      ymax = fc$upper,
+                      ymin = fc$lower,
+                      fillcolor = base::paste("rgba(", hex_to_rgb("#457b9d"),",0.2)", sep = ""),
+                      line = list(color = base::paste("rgba(", hex_to_rgb("#457b9d"),",0.4)", sep = "")),
+                      name = "Prediction Intervals") %>%
+  plotly::add_lines(x = fc$time,
                     y = fc$yhat,
                     name = "Demand Forecast",
-                    line = list(color = "#457b9d", dash = "dash", width = 1)) %>%
+                    line = list(color = "#457b9d", dash = "dash", width = 2)) %>%
   plotly::add_annotations(text = paste(paste("MAPE: ", round(100 * mean(mape_df$apc), 2), "%", sep = ""), 
                                        paste("Coverage: ", round(100 * (nrow(mape_df) - sum(mape_df$coverage_flag) )/ nrow(mape_df), 2), "%", sep = ""), sep = "<br>"),
                           xref = "paper",
                           yref = "paper", 
                           showarrow = FALSE,
                           x = 0.98, y = 0.05) %>% 
-    # plotly::add_annotations(text = paste("Coverage: ", round(100 * (nrow(mape_df) - sum(mape_df$coverage_flag) )/ nrow(mape_df), 2), "%", sep = ""), 
-    #                       xref = "paper",
-    #                       yref = "paper", 
-    #                       showarrow = FALSE,
-    #                       x = 0.98, y = 0.02) %>% 
+  # plotly::add_annotations(text = paste("Coverage: ", round(100 * (nrow(mape_df) - sum(mape_df$coverage_flag) )/ nrow(mape_df), 2), "%", sep = ""), 
+  #                       xref = "paper",
+  #                       yref = "paper", 
+  #                       showarrow = FALSE,
+  #                       x = 0.98, y = 0.02) %>% 
   plotly::layout(title = "The United States (Lower 48) Demand for Electricity Forecast",
                  yaxis = list(title = "Megawatt-Hour"),
                  xaxis = list(title = "Eastern Time<br> Source: US Energy Information Administration"),
