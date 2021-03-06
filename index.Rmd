@@ -70,11 +70,6 @@ p <- plotly::plot_ly(data = df) %>%
                           yref = "paper", 
                           showarrow = FALSE,
                           x = 0.98, y = 0.05) %>% 
-  # plotly::add_annotations(text = paste("Coverage: ", round(100 * (nrow(mape_df) - sum(mape_df$coverage_flag) )/ nrow(mape_df), 2), "%", sep = ""), 
-  #                       xref = "paper",
-  #                       yref = "paper", 
-  #                       showarrow = FALSE,
-  #                       x = 0.98, y = 0.02) %>% 
   plotly::layout(title = "The United States (Lower 48) Demand for Electricity Forecast",
                  yaxis = list(title = "Megawatt-Hour"),
                  xaxis = list(title = "Eastern Time<br> Source: US Energy Information Administration"),
