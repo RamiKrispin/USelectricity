@@ -33,7 +33,7 @@ start <- max(us_elec$date_time) - lubridate::hours(24 * 4)
 df <- us_elec %>% 
   dplyr::filter(date_time > start) %>%
   tidyr::pivot_wider(names_from = type, values_from = series) %>%
-  as.data.frame()
+  as.data.frame() %>% dplyr::filter(date_time <= max(fc$time))
 
 df$date_time_us <- lubridate::with_tz(time = df$date_time, tzone = "US/Eastern")
 
