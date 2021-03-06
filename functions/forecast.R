@@ -171,15 +171,17 @@ refresh_forecast <- function(){
   load("./data/us_elec.rda")
   load("./forecast/model_setting.RData")
   
-  df <-us_elec %>%  
+  df <- us_elec %>%  
     dplyr::filter(type == "demand") %>%
     dplyr::select(date_time, y = series) %>%
     as.data.frame() %>%
     dplyr::mutate(time = lubridate::with_tz(time = date_time, tzone = "US/Eastern")) %>%
     dplyr::arrange(time) %>%
     dplyr::select(time, y) 
+  
   start <- max(fc_df$time) + lubridate::hours(1)
-  if(max(df$time) >= max(fc_df$time)){
+  
+  if(max(df$time) > max(fc_df$time)){
     
     
     res_temp <- fc_df %>% 
@@ -221,8 +223,8 @@ refresh_forecast <- function(){
       dplyr::summarise(mean = mean(res),
                        sd = sd(res), 
                        .groups = "drop") %>%
-      dplyr::mutate(up = mean + 1.96 * sd, 
-                    low = mean - 1.96 * sd)
+      dplyr::mutate(up = mean + qnorm(p = 0.975) * sd, 
+                    low = mean - qnorm(p = 0.975) * sd)
     
     
     fc_df <- fc$forecast %>% 
@@ -238,8 +240,6 @@ refresh_forecast <- function(){
                     lower = yhat + low)
     
     
-    
-    fc_df <- rbind(fc_df, fc_df_new) 
     save(fc_df, file = "./data/forecast.rda")
     save(res_df, file = "./data/residuals.rda")
   }
