@@ -170,6 +170,7 @@ refresh_forecast <- function(){
   load("./data/residuals.rda")
   load("./data/us_elec.rda")
   load("./forecast/model_setting.RData")
+  
   df <-us_elec %>%  
     dplyr::filter(type == "demand") %>%
     dplyr::select(date_time, y = series) %>%
@@ -178,7 +179,23 @@ refresh_forecast <- function(){
     dplyr::arrange(time) %>%
     dplyr::select(time, y) 
   start <- max(fc_df$time) + lubridate::hours(1)
-  if(max(df$time) >= start){
+  if(max(df$time) >= max(fc_df$time)){
+    
+    
+    res_temp <- fc_df %>% 
+      dplyr::left_join(df, by = "time")
+    
+    if(any(is.na(res_temp$y))){
+      stop("Failed to merge the current forecast with actuals, some data points are missing...")
+    } else {
+      res_df <- res_df %>% dplyr::bind_rows(
+      res_temp %>% 
+        dplyr::mutate(res = y - yhat) %>%
+        dplyr::select(time, yhat, index, y , res))
+      
+    }
+    
+    
     
     cat("Refresh the forecast...\n")
    
@@ -208,12 +225,7 @@ refresh_forecast <- function(){
                     low = mean - 1.96 * sd)
     
     
-    
-    
-    
-    fc_df$type <- "archive"
-    
-    fc_df_new <- fc$forecast %>% 
+    fc_df <- fc$forecast %>% 
       dplyr::select(time, yhat, index_temp = index) %>%
       dplyr::mutate(index = index_temp - min(index_temp) + 1,
                     label = as.Date(substr(as.character(min(time)), 
@@ -226,10 +238,10 @@ refresh_forecast <- function(){
                     lower = yhat + low)
     
     
-    head(fc_df_new)
     
     fc_df <- rbind(fc_df, fc_df_new) 
     save(fc_df, file = "./data/forecast.rda")
+    save(res_df, file = "./data/residuals.rda")
   }
   
   cat("Done...\n")
