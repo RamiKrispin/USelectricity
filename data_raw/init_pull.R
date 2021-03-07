@@ -90,4 +90,4 @@ plotly::plot_ly(data = gen_df,
         fillcolor = ~ type) 
 
 
-save(gen_df, file = "./data/us_gen.rda")
+save(gen_df, file = "./data/gen_data.rda")
