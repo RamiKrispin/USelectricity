@@ -18,11 +18,8 @@ hex_to_rgb <- function(hex){
 
 load("./data/us_elec.rda")
 load("./data/forecast.rda")
-load("./data/us_gen.rda")
+load("./data/gen_data.rda")
 ```
-
-
-
 
 ### Demand Forecast
 
