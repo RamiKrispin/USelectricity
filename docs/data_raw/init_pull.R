@@ -58,3 +58,36 @@ plotly::plot_ly(data = us_elec,
                 color = ~ type,
                 type = "scatter",
                 mode = "lines")
+
+
+# Pulling the generation by source
+gen_cat <- eia_category(api_key = api_key, category_id = 3390105) %>%
+  dplyr::filter(f == "H")
+
+
+gen_df <- lapply(1:nrow(gen_cat), function(i){
+  
+  x1 <- regexpr(pattern = "Net generation from ", text = gen_cat$name[i])
+  x2 <- regexpr(pattern = "for", text = gen_cat$name[i])
+  gen_type <- substr(gen_cat$name[i], start = x1 + attr(x1,"match.length"), stop = x2 - 2)
+  df <- eia_query(api_key = api_key, 
+                  series_id = gen_cat$series_id[i], 
+                  start = NULL, 
+                  end = NULL, 
+                  tz = "UTC") %>%
+    dplyr::mutate(type = gen_type)
+}) %>% dplyr::bind_rows()
+
+
+head(gen_df)
+
+plotly::plot_ly(data = gen_df,
+        x = ~ date_time, 
+        y = ~ series,
+        type = 'scatter', 
+        mode = 'none', 
+        stackgroup = 'one', 
+        fillcolor = ~ type) 
+
+
+save(gen_df, file = "./data/us_gen.rda")
