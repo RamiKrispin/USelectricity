@@ -66,12 +66,23 @@ eia_query <- function(api_key,
 
 eia_category <- function(api_key, category_id = NULL){
   url <- get <- output <- NULL
-  url <- paste("http://api.eia.gov/category/?api_key=", api_key, sep = "")
-  if(!base::is.null(category_id)){
-    url <- base::paste(url, "&category_id=", category_id, "&", sep = "")
+  
+  if(!is.numeric(category_id)){
+    stop("The category_id argument is not valid")
+  } else if(!is.character(api_key)){
+    stop("The api_key argument is not valid")
   }
   
-  get <- httr::GET(url = url)
-  output <- jsonlite::fromJSON(httr::content(get, as = "text"))
-  return(output)
+  temp_file <- tempfile()
+  
+  url <- sprintf('curl "http://api.eia.gov/category/?api_key=%s&category_id=%s" | jq -r ".category.childseries[] | [.series_id, .name, .f, .units, .updated] | @csv" | tee %s', 
+                 api_key, category_id, temp_file)
+  
+  
+  system(command = url, intern = FALSE)
+  df <-  read.csv(temp_file, header = FALSE, stringsAsFactors = FALSE) %>%
+    stats::setNames(c("series_id" , "name", "f", "units", "updated"))
+  
+
+  return(df)
 }
