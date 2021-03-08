@@ -21,16 +21,37 @@ init_pull <- function(demand_id = "EBA.US48-ALL.D.H",
   
   `%>%` <- magrittr::`%>%`
   
+  msg <- function(message, n = TRUE){
+    if(n){
+      cat(paste("\033[0;92m", message,"\033[0m\n", sep = ""))
+    } else{
+      cat(paste("\033[0;92m", message,"\033[0m", sep = ""))
+    }
+  }
+  
   # Pull demand data - hourly, UTC time
   # Units: megawatthours
   # Series ID: the demand_id argument
   
-  demand1<- eia_query(api_key = api_key, series_id  = demand_id) %>%
-    dplyr::mutate(type = "demand") %>%
-    dplyr::arrange(date_time)
+  msg("Pulling the demand data...")
   
-  head(demand1)
-  tail(demand1)
+  demand1 <- demand <- NULL
+  
+  tryCatch(
+    demand1<- eia_query(api_key = api_key, series_id  = demand_id) %>%
+      dplyr::mutate(type = "demand") %>%
+      dplyr::arrange(date_time),
+    
+    error = function(c){
+      base::message(paste("Error,", c, sep = " "))
+    }
+    
+  )
+  
+  if(is.null(demand1)){
+    stop("Could non pull the demand data")
+  }
+
   
   
   start_time <- end_time <-  NULL
@@ -43,13 +64,21 @@ init_pull <- function(demand_id = "EBA.US48-ALL.D.H",
   # Pull Generation data - hourly, UTC time
   # Units: megawatthours
   # Series ID: the demand_id argument
+  msg("Pulling the generation data...")
   
-  generation1 <- eia_query(api_key = api_key, series_id  = generation_id) %>%
-    dplyr::mutate(type = "generation") %>%
-    dplyr::arrange(date_time)
+  tryCatch(
+    generation1 <- eia_query(api_key = api_key, series_id  = generation_id) %>%
+      dplyr::mutate(type = "generation") %>%
+      dplyr::arrange(date_time),
+    
+    error = function(c){
+      base::message(paste("Error,", c, sep = " "))
+    }
+  )
   
-  head(generation1)
-  tail(generation1)
+  if(is.null(generation1)){
+    stop("Could non pull the generation data")
+  }
   
   table(is.na(generation1$series))
   
@@ -60,29 +89,32 @@ init_pull <- function(demand_id = "EBA.US48-ALL.D.H",
   generation <- data.frame(date_time = seq.POSIXt(from = start_time, to = end_time, by = "hour")) %>%
     dplyr::left_join(generation1,  by = "date_time")
   
+  msg("Merging the demand and generation datasets")
+  
   elec_df <- dplyr::bind_rows(demand, generation) %>%
     tsibble::as_tsibble(key = type, index = date_time)
-  
-  
-  head(elec_df)
-  tail(elec_df)
+
   
   save(elec_df, file = "./data/elec_df.rda")
   
-  plotly::plot_ly(data = elec_df,
-                  x = ~ date_time,
-                  y = ~ series,
-                  color = ~ type,
-                  type = "scatter",
-                  mode = "lines")
   
   
   # Pulling the generation by source
+  
+  msg("Pulling the generation by energy source data...")
+  
+  gen_cat <- gen_df <-  NULL
+  
+  tryCatch(
   gen_cat <- eia_category(api_key = api_key, 
                           category_id = generation_cat) %>%
-    dplyr::filter(f == "H")
+    dplyr::filter(f == "H"),
+  error = function(c){
+    base::message(paste("Error,", c, sep = " "))
+  }
+  )
   
-  
+  tryCatch(
   gen_df <- lapply(1:nrow(gen_cat), function(i){
     
     x1 <- regexpr(pattern = "Net generation from ", text = gen_cat$name[i])
@@ -94,18 +126,12 @@ init_pull <- function(demand_id = "EBA.US48-ALL.D.H",
                     end = NULL, 
                     tz = "UTC") %>%
       dplyr::mutate(type = gen_type)
-  }) %>% dplyr::bind_rows()
-  
-  
-  head(gen_df)
-  
-  plotly::plot_ly(data = gen_df,
-                  x = ~ date_time, 
-                  y = ~ series,
-                  type = 'scatter', 
-                  mode = 'none', 
-                  stackgroup = 'one', 
-                  fillcolor = ~ type) 
+  }) %>% dplyr::bind_rows(),
+  error = function(c){
+    base::message(paste("Error,", c, sep = " "))
+  }
+  )
+ 
   
   
   save(gen_df, file = "./data/gen_df.rda")
