@@ -80,7 +80,6 @@ init_pull <- function(demand_id = "EBA.US48-ALL.D.H",
     stop("Could non pull the generation data")
   }
   
-  table(is.na(generation1$series))
   
   start_time <- end_time <-  NULL
   start_time <- min(generation1$date_time)
@@ -114,6 +113,12 @@ init_pull <- function(demand_id = "EBA.US48-ALL.D.H",
   }
   )
   
+  
+  if(is.null(gen_cat)){
+    stop("Could non pull the gen_cat data")
+  }
+  
+  
   tryCatch(
   gen_df <- lapply(1:nrow(gen_cat), function(i){
     
@@ -132,7 +137,9 @@ init_pull <- function(demand_id = "EBA.US48-ALL.D.H",
   }
   )
  
-  
+  if(is.null(gen_df)){
+    stop("Could non pull the gen_df data")
+  }
   
   save(gen_df, file = "./data/gen_df.rda")
   
