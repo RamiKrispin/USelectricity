@@ -51,7 +51,7 @@ init_pull <- function(demand_id = "EBA.US48-ALL.D.H",
   if(is.null(demand1)){
     stop("Could non pull the demand data")
   }
-
+  
   
   
   start_time <- end_time <-  NULL
@@ -92,7 +92,7 @@ init_pull <- function(demand_id = "EBA.US48-ALL.D.H",
   
   elec_df <- dplyr::bind_rows(demand, generation) %>%
     tsibble::as_tsibble(key = type, index = date_time)
-
+  
   
   save(elec_df, file = "./data/elec_df.rda")
   
@@ -105,12 +105,12 @@ init_pull <- function(demand_id = "EBA.US48-ALL.D.H",
   gen_cat <- gen_df <-  NULL
   
   tryCatch(
-  gen_cat <- eia_category(api_key = api_key, 
-                          category_id = generation_cat) %>%
-    dplyr::filter(f == "H"),
-  error = function(c){
-    base::message(paste("Error,", c, sep = " "))
-  }
+    gen_cat <- eia_category(api_key = api_key, 
+                            category_id = generation_cat) %>%
+      dplyr::filter(f == "H"),
+    error = function(c){
+      base::message(paste("Error,", c, sep = " "))
+    }
   )
   
   
@@ -119,24 +119,36 @@ init_pull <- function(demand_id = "EBA.US48-ALL.D.H",
   }
   
   
-  tryCatch(
-  gen_df <- lapply(1:nrow(gen_cat), function(i){
+  for(i in 1:nrow(gen_cat)){
     
     x1 <- regexpr(pattern = "Net generation from ", text = gen_cat$name[i])
     x2 <- regexpr(pattern = "for", text = gen_cat$name[i])
-    gen_type <- substr(gen_cat$name[i], start = x1 + attr(x1,"match.length"), stop = x2 - 2)
-    df <- eia_query(api_key = api_key, 
-                    series_id = gen_cat$series_id[i], 
-                    start = NULL, 
-                    end = NULL, 
-                    tz = "UTC") %>%
-      dplyr::mutate(type = gen_type)
-  }) %>% dplyr::bind_rows(),
-  error = function(c){
-    base::message(paste("Error,", c, sep = " "))
+    gen_cat$type <- substr(gen_cat$name[i], start = x1 + attr(x1,"match.length"), stop = x2 - 2)
   }
+  
+  save(gen_cat, file = "./data/gen_cat.rda")
+  
+  
+  
+  
+  tryCatch(
+    gen_df <- lapply(1:nrow(gen_cat), function(i){
+      
+      x1 <- regexpr(pattern = "Net generation from ", text = gen_cat$name[i])
+      x2 <- regexpr(pattern = "for", text = gen_cat$name[i])
+      gen_type <- substr(gen_cat$name[i], start = x1 + attr(x1,"match.length"), stop = x2 - 2)
+      df <- eia_query(api_key = api_key, 
+                      series_id = gen_cat$series_id[i], 
+                      start = NULL, 
+                      end = NULL, 
+                      tz = "UTC") %>%
+        dplyr::mutate(type = gen_type)
+    }) %>% dplyr::bind_rows(),
+    error = function(c){
+      base::message(paste("Error,", c, sep = " "))
+    }
   )
- 
+  
   if(is.null(gen_df)){
     stop("Could non pull the gen_df data")
   }
