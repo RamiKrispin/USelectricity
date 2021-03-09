@@ -2,7 +2,8 @@
 title: "US Electricity"
 output: 
   flexdashboard::flex_dashboard:
-    vertical_layout: scroll
+    vertical_layout: fill
+
 ---
 
 ```{r setup, include=FALSE}
@@ -17,10 +18,8 @@ hex_to_rgb <- function(hex){
 
 load("./data/us_elec.rda")
 load("./data/forecast.rda")
+load("./data/gen_data.rda")
 ```
-
-
-
 
 ### Demand Forecast
 
@@ -50,10 +49,6 @@ p <- plotly::plot_ly(data = df) %>%
                     y = ~ demand,
                     name = "Demand",
                     line = list(color = "#1f77b4")) %>%
-  plotly::add_lines(x = ~ date_time_us,
-                    y = ~ generation,
-                    name = "Generation",
-                    line = list(color = "#2ca02c")) %>%
   plotly::add_ribbons(x = fc$time, 
                       ymax = fc$upper,
                       ymin = fc$lower,
@@ -76,5 +71,26 @@ p <- plotly::plot_ly(data = df) %>%
                  hovermode = "compare") 
 
 p
+```
+
+### Generation
+
+```{r}
+
+gen_df %>% 
+  dplyr::mutate(time = lubridate::with_tz(time = date_time, tzone = "US/Eastern")) %>%
+  dplyr::filter(time >= start) %>%
+plotly::plot_ly(
+        x = ~ date_time, 
+        y = ~ series,
+        type = 'scatter', 
+        mode = 'none', 
+        stackgroup = 'one', 
+        fillcolor = ~ type) %>%
+  plotly::layout(title = "The United States (Lower 48) Net Generation by Energy Source",
+                 yaxis = list(title = "Megawatt-Hour"),
+                 xaxis = list(title = "Eastern Time<br> Source: US Energy Information Administration",
+                              range = c(start, max(fc_df$time))),
+                 hovermode = "compare") 
 ```
 
