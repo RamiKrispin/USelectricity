@@ -143,7 +143,7 @@ update_generation <- function(api_key = Sys.getenv("eia_key")){
   update_flag <- FALSE
   
   for(i in 1:nrow(gen_cat)){
-    gen_new <- start <-NULL
+    gen_new <- start <- NULL
     
     msg(paste("Trying to pull", gen_cat$type[i], "data", sep = " "))
     
@@ -159,8 +159,8 @@ update_generation <- function(api_key = Sys.getenv("eia_key")){
     tryCatch(
       
       gen_new <- eia_query(api_key = api_key, 
-                           series_id = start, 
-                           start = gen_cat$start[i]),
+                           series_id = gen_cat$series_id[i], 
+                           start = start),
       error = function(c){
         base::message(paste("Error,", c, sep = " "))
       }
