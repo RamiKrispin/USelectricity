@@ -143,15 +143,24 @@ update_generation <- function(api_key = Sys.getenv("eia_key")){
   update_flag <- FALSE
   
   for(i in 1:nrow(gen_cat)){
-    gen_new <- NULL
+    gen_new <- start <- NULL
     
     msg(paste("Trying to pull", gen_cat$type[i], "data", sep = " "))
+    
+    if(lubridate::hour(gen_cat$start[i]) != 23) {
+      start <- paste(gsub("-", "",substr(gen_cat$start[i], 1, 10)), "T",
+                       substr(gen_cat$start[i], 12, 13), "Z", sep = "")
+    } else{
+      start <- paste(gsub("-", "",substr(gen_cat$start[i], 1, 10)), "T",
+                       "00", "Z", sep = "")
+    }
+    
     
     tryCatch(
       
       gen_new <- eia_query(api_key = api_key, 
                            series_id = gen_cat$series_id[i], 
-                           start = gen_cat$start[i]),
+                           start = start),
       error = function(c){
         base::message(paste("Error,", c, sep = " "))
       }
