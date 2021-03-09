@@ -184,16 +184,15 @@ update_generation <- function(){
       
     }
     
-    if(update_flag){
-      msg("Saving changes...")
-      
-      save(gen_df, file = "./data/gen_df.rda")
-    } else {
-      msg("No updates avaiable...")
-    }
-    
   }
   
-  
-  
+  if(update_flag){
+    msg("Saving changes...")
+    
+    save(gen_df, file = "./data/gen_df.rda")
+    return(TRUE)
+  } else {
+    msg("No updates avaiable....")
+    return(FALSE)
+  }
 }
