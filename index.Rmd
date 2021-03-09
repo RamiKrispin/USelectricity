@@ -20,7 +20,7 @@ load("./data/elec_df.rda")
 load("./data/forecast.rda")
 load("./data/gen_df.rda")
 
-days <- 5
+days <- 3
 ```
 
 ### Demand Forecast
@@ -29,7 +29,7 @@ days <- 5
 
 fc <- fc_df %>% dplyr::filter(type == "latest")
 
-start <- max(elec_df$date_time) - lubridate::hours(24 * days)
+start <- min(fc$time) - lubridate::hours(24 * days)
 
 df <- elec_df %>% 
   dplyr::filter(date_time > start) %>%
