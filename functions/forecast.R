@@ -168,10 +168,10 @@ refresh_forecast <- function(){
   `%>%` <- magrittr::`%>%`
   load("./data/forecast.rda")
   load("./data/residuals.rda")
-  load("./data/us_elec.rda")
+  load("./data/elec_df.rda")
   load("./forecast/model_setting.RData")
   
-  df <- us_elec %>%  
+  df <- elec_df %>%  
     dplyr::filter(type == "demand") %>%
     dplyr::select(date_time, y = series) %>%
     as.data.frame() %>%
