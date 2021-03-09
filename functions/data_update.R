@@ -1,30 +1,48 @@
 #' Updating the Data
 #' @description The function load the existing data and pull additional data, if available
-update_data <- function(api_key = Sys.getenv("eia_key")){
-  cat("Check for updates...\n")
-  source("./functions/eia_query.R")
-  load("./data/us_elec.rda")
+update_data <- function(api_key = Sys.getenv("eia_key"),
+                        demand_id = "EBA.US48-ALL.D.H", 
+                        generation_id = "EBA.US48-ALL.NG.H"){
+  
   `%>%` <- magrittr::`%>%`
-  demand_df <- us_elec %>% dplyr::filter(type == "demand")
+  
+  msg <- function(message, n = TRUE){
+    if(n){
+      cat(paste("\033[0;92m", message,"\033[0m\n", sep = ""))
+    } else{
+      cat(paste("\033[0;92m", message,"\033[0m", sep = ""))
+    }
+  }
+  
+  
+  source("./functions/eia_query.R")
+  
+  
+  msg("Checking for updates...")
+  
+  load("./data/elec_df.rda")
+  
+  
+  
+  demand_df <- elec_df %>% dplyr::filter(type == "demand")
   refresh_flag <- FALSE
   
   time_str_d <- as.character(max(demand_df$date_time) + lubridate::hours(1))
+  
   if(lubridate::hour(max(demand_df$date_time)) != 23) {
-  start_d <- paste(gsub("-", "",substr(time_str_d, 1, 10)), "T",
-                   substr(time_str_d, 12, 13), "Z", sep = "")
+    start_d <- paste(gsub("-", "",substr(time_str_d, 1, 10)), "T",
+                     substr(time_str_d, 12, 13), "Z", sep = "")
   } else{
     start_d <- paste(gsub("-", "",substr(time_str_d, 1, 10)), "T",
                      "00", "Z", sep = "")
   }
   
   
-  
-  series_id_d  <- "EBA.US48-ALL.D.H"
-  
   demand_new <- NULL
+  
   tryCatch(
     demand_new <- eia_query(api_key = api_key, 
-                            series_id = series_id_d, 
+                            series_id = demand_id, 
                             start = start_d),
     error = function(c){
       base::message(paste("Error,", c, sep = " "))
@@ -38,7 +56,7 @@ update_data <- function(api_key = Sys.getenv("eia_key")){
   } else{
     
     demand_new$type <- "demand"
-    us_elec <- us_elec %>% 
+    elec_df <- elec_df %>% 
       dplyr::bind_rows(demand_new) %>%
       dplyr::arrange(date_time)
     
@@ -46,7 +64,7 @@ update_data <- function(api_key = Sys.getenv("eia_key")){
   }
   
   # Updating the generation data
-  generation_df <- us_elec %>% 
+  generation_df <- elec_df %>% 
     dplyr::filter(type == "generation")
   
   time_str_g <- as.character(max(generation_df$date_time) + lubridate::hours(1))
@@ -60,11 +78,13 @@ update_data <- function(api_key = Sys.getenv("eia_key")){
   }
   
   
-  series_id_g  <- "EBA.US48-ALL.NG.H"
+  series_id_g  <- generation_id
   
   generation_new <- NULL
   tryCatch(
-    generation_new <- eia_query(api_key = api_key, series_id = series_id_g, start = start_g),
+    generation_new <- eia_query(api_key = api_key, 
+                                series_id = generation_id, 
+                                start = start_g),
     error = function(c){
       base::message(paste("Error,", c, sep = " "))
     }
@@ -77,7 +97,7 @@ update_data <- function(api_key = Sys.getenv("eia_key")){
   } else{
     
     generation_new$type <- "generation"
-    us_elec <- us_elec %>% 
+    elec_df <- elec_df %>% 
       dplyr::bind_rows(generation_new) %>%
       dplyr::arrange(date_time)
     
@@ -86,11 +106,94 @@ update_data <- function(api_key = Sys.getenv("eia_key")){
   
   
   if(refresh_flag){
-  save(us_elec, file = "./data/us_elec.rda")
-    cat("Done...\n")
+    save(elec_df, file = "./data/elec_df.rda")
+    msg("Update the demand and generation dataset...")
     return(TRUE)
   } else{
-    cat("Updates are not available...\n")
+    msg("Updates are not available for the demand and generation datasets...")
     return(FALSE)
   }
+}
+
+update_generation <- function(){
+  
+  `%>%` <- magrittr::`%>%`
+  
+  msg <- function(message, n = TRUE){
+    if(n){
+      cat(paste("\033[0;92m", message,"\033[0m\n", sep = ""))
+    } else{
+      cat(paste("\033[0;92m", message,"\033[0m", sep = ""))
+    }
+  }
+  
+  
+  source("./functions/eia_query.R")
+  
+  msg("Checking for updates...")
+  
+  load("./data/gen_cat.rda")
+  load("./data/gen_df.rda")
+  
+  
+  gen_cat <- gen_cat %>% 
+    dplyr::left_join(
+      gen_df %>% 
+        dplyr::group_by(type) %>%
+        dplyr::summarise(start = max(date_time) + lubridate::hours(1)),
+      by = "type")
+  
+  update_flag <- FALSE
+  
+  for(i in 1:nrow(gen_cat)){
+    gen_new <- NULL
+    
+    msg(paste("Trying to pull", gen_cat$type[i], "data", sep = " "))
+    
+    tryCatch(
+      
+      gen_new <- eia_query(api_key = api_key, 
+                           series_id = gen_cat$series_id[i], 
+                           start = gen_cat$start[i]),
+      error = function(c){
+        base::message(paste("Error,", c, sep = " "))
+      }
+    )
+    
+    if(!is.null(gen_new)){
+      if(min(gen_new$date_time) !=  gen_cat$start[i]){
+        stop("The timestamp of the new data is not aligned with existing one")
+      } else if(nrow(gen_new) == 0){
+        stop("The generation table is emptly")
+      } else{
+        
+        gen_df <- gen_df %>% 
+          dplyr::bind_rows(gen_new %>% 
+                             dplyr::select(date_time, value = series) %>%
+                             dplyr::mutate(type = gen_cat$type[i]))
+        
+        msg(paste("Updated the", 
+                  gen_cat$type[i], 
+                  "date", 
+                  sep = " "))
+        
+        update_flag <- TRUE
+      }
+      
+      
+      
+    }
+    
+    if(update_flag){
+      msg("Saving changes...")
+      
+      save(gen_df, file = "./data/gen_df.rda")
+    } else {
+      msg("No updates avaiable...")
+    }
+    
+  }
+  
+  
+  
 }

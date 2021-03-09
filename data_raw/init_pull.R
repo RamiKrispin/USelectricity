@@ -123,7 +123,7 @@ init_pull <- function(demand_id = "EBA.US48-ALL.D.H",
     
     x1 <- regexpr(pattern = "Net generation from ", text = gen_cat$name[i])
     x2 <- regexpr(pattern = "for", text = gen_cat$name[i])
-    gen_cat$type <- substr(gen_cat$name[i], start = x1 + attr(x1,"match.length"), stop = x2 - 2)
+    gen_cat$type[i] <- substr(gen_cat$name[i], start = x1 + attr(x1,"match.length"), stop = x2 - 2)
   }
   
   save(gen_cat, file = "./data/gen_cat.rda")
@@ -142,7 +142,8 @@ init_pull <- function(demand_id = "EBA.US48-ALL.D.H",
                       start = NULL, 
                       end = NULL, 
                       tz = "UTC") %>%
-        dplyr::mutate(type = gen_type)
+        dplyr::mutate(type = gen_type) %>%
+        dplyr::select(date_time, value = series, type)
     }) %>% dplyr::bind_rows(),
     error = function(c){
       base::message(paste("Error,", c, sep = " "))
