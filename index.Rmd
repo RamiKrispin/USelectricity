@@ -16,9 +16,9 @@ hex_to_rgb <- function(hex){
   return(rgb) 
 }
 
-load("./data/us_elec.rda")
+load("./data/elec_df.rda")
 load("./data/forecast.rda")
-load("./data/gen_data.rda")
+load("./data/gen_df.rda")
 ```
 
 ### Demand Forecast
@@ -27,9 +27,9 @@ load("./data/gen_data.rda")
 
 fc <- fc_df %>% dplyr::filter(type == "latest")
 
-start <- max(us_elec$date_time) - lubridate::hours(24 * 4)
+start <- max(elec_df$date_time) - lubridate::hours(24 * 4)
 
-df <- us_elec %>% 
+df <- elec_df %>% 
   dplyr::filter(date_time > start) %>%
   tidyr::pivot_wider(names_from = type, values_from = series) %>%
   as.data.frame() %>% dplyr::filter(date_time <= max(fc$time))
@@ -82,7 +82,7 @@ gen_df %>%
   dplyr::filter(time >= start) %>%
 plotly::plot_ly(
         x = ~ date_time, 
-        y = ~ series,
+        y = ~ value,
         type = 'scatter', 
         mode = 'none', 
         stackgroup = 'one', 

@@ -1,0 +1,14 @@
+{
+    "docker": {
+        "packages": [
+            {
+                "package": "dplyr",
+                "version":"1.0.4"
+            },
+            {
+                "package": "lubridate",
+                "version":"1.7.4"
+            }
+        ]
+    }
+}
