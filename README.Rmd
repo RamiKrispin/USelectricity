@@ -18,6 +18,8 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
+WIP...
+
 The [US Electricity Dashboard](https://ramikrispin.github.io/USelectricity/) provides real-time tracking and forecasting for US (lower 48 states) hourly electricity demand. This project's primary goal is to demonstrate a data science project's deployment into production using open source and free tools such as R, h2o, Github Actions, Docker, and others. That includes the following components:
 
 * Data - pulling the US hourly demand and generation of electricity data from the Energy Information Administration (EIA) API with the use of R and jq
@@ -37,8 +39,8 @@ Net generation
 https://www.eia.gov/opendata/qb.php?category=3390020&sdid=EBA.US48-ALL.NG.H
 
 ```{r include=FALSE}
-load("./data/us_elec.rda")
-df <- us_elec %>% 
+load("./data/elec_df.rda")
+df <- elec_df %>% 
   dplyr::filter(date_time >= lubridate::ymd_hms("2021-01-01 00:00:00", tz = "US/Eastern" ) & 
                   date_time < lubridate::ymd_hms("2021-02-01 00:00:00", tz = "US/Eastern" )) %>%
   tidyr::pivot_wider(names_from = type, values_from = series)
@@ -59,8 +61,8 @@ p <- plotly::plot_ly(data = df) %>%
                  xaxis = list(title = "Eastern Time<br> Source: US Energy Information Administration"),
                  hovermode = "compare") 
 
-plotly::orca(p, "./figures/us_elec.svg")
+plotly::orca(p, "./figures/elec_df.svg")
   
 ```
 
-<img src="figures/us_elec.svg" width="100%" />
+<img src="figures/elec_df.svg" width="100%" />

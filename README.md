@@ -6,6 +6,8 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
+WIP…
+
 The [US Electricity
 Dashboard](https://ramikrispin.github.io/USelectricity/) provides
 real-time tracking and forecasting for US (lower 48 states) hourly
@@ -35,4 +37,4 @@ Demand
 Net generation
 <https://www.eia.gov/opendata/qb.php?category=3390020&sdid=EBA.US48-ALL.NG.H>
 
-<img src="figures/us_elec.svg" width="100%" />
+<img src="figures/elec_df.svg" width="100%" />
