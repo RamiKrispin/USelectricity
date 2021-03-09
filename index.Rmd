@@ -19,6 +19,8 @@ hex_to_rgb <- function(hex){
 load("./data/elec_df.rda")
 load("./data/forecast.rda")
 load("./data/gen_df.rda")
+
+days <- 5
 ```
 
 ### Demand Forecast
@@ -27,7 +29,7 @@ load("./data/gen_df.rda")
 
 fc <- fc_df %>% dplyr::filter(type == "latest")
 
-start <- max(elec_df$date_time) - lubridate::hours(24 * 4)
+start <- max(elec_df$date_time) - lubridate::hours(24 * days)
 
 df <- elec_df %>% 
   dplyr::filter(date_time > start) %>%
@@ -79,7 +81,7 @@ p
 
 gen_df %>% 
   dplyr::mutate(time = lubridate::with_tz(time = date_time, tzone = "US/Eastern")) %>%
-  dplyr::filter(time >= start) %>%
+  # dplyr::filter(time >= start) %>%
 plotly::plot_ly(
         x = ~ date_time, 
         y = ~ value,
