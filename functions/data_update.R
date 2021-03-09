@@ -77,9 +77,6 @@ update_data <- function(api_key = Sys.getenv("eia_key"),
                      "00", "Z", sep = "")
   }
   
-  
-  series_id_g  <- generation_id
-  
   generation_new <- NULL
   tryCatch(
     generation_new <- eia_query(api_key = api_key, 
