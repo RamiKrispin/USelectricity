@@ -115,7 +115,7 @@ update_data <- function(api_key = Sys.getenv("eia_key"),
   }
 }
 
-update_generation <- function(){
+update_generation <- function(api_key = Sys.getenv("eia_key")){
   
   `%>%` <- magrittr::`%>%`
   
