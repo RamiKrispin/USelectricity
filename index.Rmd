@@ -3,6 +3,8 @@ title: "US Electricity"
 output: 
   flexdashboard::flex_dashboard:
     vertical_layout: fill
+    social: menu
+    source_code: embed
 
 ---
 
