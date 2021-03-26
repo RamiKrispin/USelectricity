@@ -1,14 +1,57 @@
 {
     "docker": {
+        "FROM": "rkrispin/baser:v.4.0.0",
+        "maintainer" : "Rami Krispin <rami.krispin@gmail.com>",
+        "repos" : "https://cran.rstudio.com/",
         "packages": [
             {
                 "package": "dplyr",
                 "version":"1.0.4"
             },
             {
+                "package": "magrittr",
+                "version":"1.5"
+            },
+            {
+                "package": "plotly",
+                "version":"4.9.3"
+            },
+            {
+                "package": "h2o",
+                "version":"3.32.0.4"
+            },
+            {
+                "package": "reactable",
+                "version":"0.2.0"
+            },
+            {
+                "package": "rmarkdown",
+                "version":"2.5"
+            },
+            {
+                "package": "flexdashboard",
+                "version":"0.5.1.1"
+            },
+            {
                 "package": "lubridate",
                 "version":"1.7.4"
             }
         ]
-    }
+    },
+    "eia": [
+        {
+            "demand_id": "EBA.US48-ALL.D.H",
+            "generation_id": "EBA.US48-ALL.NG.H",
+            "generation_cat": 3390105
+        }
+    ],
+    "model": [
+        {
+            "type": "glm",
+            "alpha": 0.66,
+            "lambda": 0.0005
+
+        }
+    ]
+
 }
