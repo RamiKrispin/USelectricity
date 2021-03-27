@@ -179,7 +179,7 @@ refresh_forecast <- function(){
     dplyr::arrange(time) %>%
     dplyr::select(time, y) 
   
-  start <- max(fc_df$time) + lubridate::hours(1)
+  start <- max(fc_df$time) + lubridate::hours(1) 
   
   if(max(df$time) > max(fc_df$time)){
     
