@@ -149,11 +149,8 @@ glm_fc <- function(data,
       yhat[r] <- (h2o::h2o.predict(md, fc_df[r,]))[1,1]
     }
   }
-  
-  
-  
+
   future_df$yhat <- yhat
-  
   
   h2o::h2o.shutdown(prompt = FALSE)
   output <- list(forecast = future_df,
@@ -169,6 +166,7 @@ refresh_forecast <- function(){
   load("./data/forecast.rda")
   load("./data/residuals.rda")
   load("./data/elec_df.rda")
+  load("./data/dist.rda")
   load("./forecast/model_setting.RData")
   
   df <- elec_df %>%  
@@ -185,16 +183,18 @@ refresh_forecast <- function(){
     
     
     res_temp <- fc_df %>% 
-      dplyr::left_join(df, by = "time")
+      dplyr::select(time, yhat, index_temp = index) %>%
+      dplyr::left_join(df, by = "time") %>%
+      dplyr::mutate(index = index_temp - min(index_temp) + 1,
+                    res = y - yhat,
+                    label = as.Date(min(time))) %>%
+      dplyr::select(time, index, y, yhat, res, label)
+    
     
     if(any(is.na(res_temp$y))){
       stop("Failed to merge the current forecast with actuals, some data points are missing...")
     } else {
-      res_df <- res_df %>% dplyr::bind_rows(
-      res_temp %>% 
-        dplyr::mutate(res = y - yhat) %>%
-        dplyr::select(time, yhat, index, y , res))
-      
+      dist$forecast <- dist$forecast %>% dplyr::bind_rows(res_temp)
     }
     
     
@@ -218,7 +218,7 @@ refresh_forecast <- function(){
                  max_mem_size = NULL,
                  h = 72)
     
-    res_summary <- res_df %>%
+    res_summary <- dist$forecast %>%
       dplyr::group_by(index) %>%
       dplyr::summarise(mean = mean(res),
                        sd = sd(res), 
@@ -240,8 +240,15 @@ refresh_forecast <- function(){
                     lower = yhat + low)
     
     
+    
+    fc$coefficients %>% as.data.frameclass
+    
+    dist$coefficients <- dist$coefficients %>%
+      dplyr::bind_rows(fc$coefficients %>%
+                         as.data.frame() %>%
+                         dplyr::mutate(label = as.Date(min(fc$forecast$time))))
     save(fc_df, file = "./data/forecast.rda")
-    save(res_df, file = "./data/residuals.rda")
+    save(dist, file = "./data/dist.rda")
   }
   
   cat("Done...\n")
