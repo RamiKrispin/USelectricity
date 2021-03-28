@@ -97,6 +97,22 @@ get_dist <- function(input, start, alpha, lambda, cores = parallel::detectCores(
   for(i in 1:length(fc_sim)){
     if(!is.list(fc_sim[[i]])){
       print(i)
+      fc_sim[[i]] <- glm_fc(data = df %>%
+                     dplyr::filter(time < start[i]),
+                   y = "y",
+                   date_time = "time",
+                   alpha = alpha,
+                   lambda = lambda,
+                   lags = lags,
+                   trend = TRUE,
+                   seasonal = list(hour = TRUE,
+                                   yday = TRUE,
+                                   wday = TRUE,
+                                   month = TRUE,
+                                   year = TRUE),
+                   port = port + i * 2,
+                   max_mem_size = "1G",
+                   h = 72)
     }
   }
   
@@ -133,9 +149,9 @@ get_dist <- function(input, start, alpha, lambda, cores = parallel::detectCores(
   
 }
 
-start <- seq.POSIXt(from = as.POSIXct("2021-02-01 01:00:00", tz = "US/Eastern"), 
+start <- seq.POSIXt(from = as.POSIXct("2021-01-01 01:00:00", tz = "US/Eastern"), 
                     by = "24 hours", 
-                    length.out = 45)
+                    length.out = 80)
 dist <- get_dist(input = input, start = start, alpha = alpha, lambda = lambda)
 save(dist, file = "./data/dist.rda")
 
