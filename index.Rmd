@@ -21,9 +21,15 @@ hex_to_rgb <- function(hex){
 load("./data/elec_df.rda")
 load("./data/forecast.rda")
 load("./data/gen_df.rda")
+load("./data/dist.rda")
 
 days <- 3
 ```
+
+
+Forecast
+==============
+
 
 ### Demand Forecast
 
@@ -98,3 +104,54 @@ plotly::plot_ly(
                  hovermode = "compare") 
 ```
 
+
+
+
+Model
+==============
+
+Column
+-------------------------------------
+
+### Month Effect
+
+
+
+Column
+-------------------------------------
+
+### Coefficents
+
+
+Model 2
+==============
+
+Row {.tabset}
+-----------------------------------------------------------------------
+
+### Cases Distribution by Type 
+
+Column
+-------------------------------------
+
+
+
+```{r}
+m <- dist$coefficients %>%
+  dplyr::filter(grepl("^month", names)) %>%
+  dplyr::mutate(month = as.numeric(gsub(pattern = "month.", replacement = "", names))) %>%
+  dplyr::group_by(month) %>%
+  dplyr::summarise(mean = mean(coefficients),
+                   sd = sd(coefficients))
+
+
+plotly::plot_ly(data = m,
+                x = ~ month,
+                y = ~ mean,
+                type = "scatter",
+                mode = "lines")
+```
+
+
+
+### Cases
