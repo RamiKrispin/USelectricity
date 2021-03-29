@@ -330,7 +330,7 @@ get_dist <- function(input, start, alpha, lambda, cores = parallel::detectCores(
                                })
   
   
-  cat("\033[0;93mTrying to connect to postgres\033[0m\n")
+  cat("\033[0;93mSetting some message...\033[0m\n")
   
   for(i in 1:length(fc_sim)){
     if(!is.list(fc_sim[[i]])){
