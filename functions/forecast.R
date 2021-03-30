@@ -187,8 +187,9 @@ refresh_forecast <- function(){
       dplyr::left_join(df, by = "time") %>%
       dplyr::mutate(index = index_temp - min(index_temp) + 1,
                     res = y - yhat,
-                    label = as.Date(min(time))) %>%
-      dplyr::select(time, index, y, yhat, res, label)
+                    label = as.Date(min(time)),
+                    type = "forecast") %>%
+      dplyr::select(time, index, y, yhat, res, label, type)
     
     
     if(any(is.na(res_temp$y))){
@@ -241,12 +242,11 @@ refresh_forecast <- function(){
     
     
     
-    fc$coefficients %>% as.data.frameclass
-    
     dist$coefficients <- dist$coefficients %>%
       dplyr::bind_rows(fc$coefficients %>%
                          as.data.frame() %>%
-                         dplyr::mutate(label = as.Date(min(fc$forecast$time))))
+                         dplyr::mutate(label = as.Date(min(fc$forecast$time)),
+                                       type = "forecast"))
     save(fc_df, file = "./data/forecast.rda")
     save(dist, file = "./data/dist.rda")
   }
