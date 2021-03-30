@@ -90,13 +90,13 @@ p
 gen_df %>% 
   dplyr::mutate(time = lubridate::with_tz(time = date_time, tzone = "US/Eastern")) %>%
   # dplyr::filter(time >= start) %>%
-plotly::plot_ly(
-        x = ~ date_time, 
-        y = ~ value,
-        type = 'scatter', 
-        mode = 'none', 
-        stackgroup = 'one', 
-        fillcolor = ~ type) %>%
+  plotly::plot_ly(
+    x = ~ date_time, 
+    y = ~ value,
+    type = 'scatter', 
+    mode = 'none', 
+    stackgroup = 'one', 
+    fillcolor = ~ type) %>%
   plotly::layout(title = "The United States (Lower 48) Net Generation by Energy Source",
                  yaxis = list(title = "Megawatt-Hour"),
                  xaxis = list(title = "Eastern Time<br> Source: US Energy Information Administration",
@@ -110,10 +110,40 @@ plotly::plot_ly(
 Model
 ==============
 
-Column
+Column {data-width=300}
 -------------------------------------
 
-### Month Effect
+### Model Coefficents {data-width=300}
+
+```{r}
+c <- dist$coefficients %>% dplyr::filter(label == max(label))
+
+reactable::reactable(c %>% dplyr::select(-label),
+                     onClick = "select",
+                     # selection = "single",
+                     pagination = TRUE,
+                     highlight = TRUE,
+                     height = 800,
+                     # defaultSorted = "growth_size",
+                     sortable = TRUE,
+                     borderless = TRUE,
+                     defaultPageSize = nrow(c),
+                     columns = list(
+                       names = reactable::colDef(name = "Coefficient Name",
+                                                                  minWidth = 80,
+                                                                  maxWidth = 170),
+                       coefficients = reactable::colDef(name = "Coefficient Value",
+                                                                  minWidth = 80,
+                                                                  maxWidth = 170,
+                                                                  format = reactable::colFormat(separators = TRUE, digits = 2)),
+                       standardized_coefficients = reactable::colDef(name = "Standardized Coefficient Value",
+                                                                  minWidth = 80,
+                                                                  maxWidth = 170,
+                                                                  format = reactable::colFormat(separators = TRUE, digits = 2))
+                       
+                     ))
+```
+
 
 
 
