@@ -219,7 +219,7 @@ refresh_forecast <- function(){
                  max_mem_size = NULL,
                  h = 72)
     
-    res_summary <- dist$forecast %>%
+      res_summary <- dist$forecast %>%
       dplyr::group_by(index) %>%
       dplyr::summarise(mean = mean(res),
                        sd = sd(res), 
