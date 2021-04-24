@@ -110,7 +110,7 @@ gen_df %>%
 Model
 ==============
 
-Column {data-width=300}
+Column {data-width=3    00}
 -------------------------------------
 
 ### Model Coefficents {data-width=300}
