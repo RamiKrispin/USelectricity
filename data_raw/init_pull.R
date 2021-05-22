@@ -4,7 +4,6 @@ init_pull <- function(demand_id = "EBA.US48-ALL.D.H",
                       api_key = Sys.getenv("eia_key")){
   
   
-  
   # Error handling ----
   if(!is.character(demand_id)){
     stop("The demand_id argument is not valid")
