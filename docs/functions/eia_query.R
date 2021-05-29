@@ -23,6 +23,7 @@ eia_query <- function(api_key,
                       start = NULL, 
                       end = NULL, 
                       tz = "UTC"){
+  
   `%>%` <- magrittr::`%>%`
   
   url <- base::paste("http://api.eia.gov/series/?",
