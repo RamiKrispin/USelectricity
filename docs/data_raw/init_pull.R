@@ -89,6 +89,31 @@ init_pull <- function(demand_id = "EBA.US48-ALL.D.H",
   
   msg("Merging the demand and generation datasets")
   
+  
+  # Impute missing value for June 27, 2021
+  # using the generation values as the demand
+  if(is.na(demand[which(demand$type == "demand" & 
+             demand$date_time == as.POSIXct("2021-06-27 00:00:00", tz = "UTC")), "series"])){
+    
+  d  <- demand %>% as.data.frame() %>%
+    dplyr::filter(!(type == "demand" & 
+                      date_time == as.POSIXct("2021-06-27 00:00:00", tz = "UTC"))) %>%
+    dplyr::bind_rows(demand %>%  as.data.frame() %>%
+                       dplyr::filter(type == "generation", 
+                                     date_time >= as.Date("2021-06-27") & 
+                                       date_time < as.Date("2021-06-28")) %>%
+                       dplyr::mutate(type = "demand"))
+  
+  if(any(is.na(d$series))){
+    stop("Some missing values")
+  } else if(nrow(demand) > nrow(d)){
+    stop("The number of rows of the imputated table is invalid")
+  } 
+  
+  }
+  
+  
+  
   elec_df <- dplyr::bind_rows(demand, generation) %>%
     tsibble::as_tsibble(key = type, index = date_time)
   
@@ -152,6 +177,7 @@ init_pull <- function(demand_id = "EBA.US48-ALL.D.H",
   if(is.null(gen_df)){
     stop("Could non pull the gen_df data")
   }
+  
   
   save(gen_df, file = "./data/gen_df.rda")
   
