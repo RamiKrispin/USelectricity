@@ -14,11 +14,11 @@ init_pull <- function(demand_id = "EBA.US48-ALL.D.H",
   } else if(!is.numeric(generation_cat)){
     stop("The generation_cat argument is not valid")
   } 
-  
+  `%>%` <- magrittr::`%>%`
   # Load functions ---- 
   source("./functions/eia_query.R")
   
-  `%>%` <- magrittr::`%>%`
+  
   
   msg <- function(message, n = TRUE){
     if(n){
