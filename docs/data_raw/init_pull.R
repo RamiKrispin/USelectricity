@@ -37,9 +37,9 @@ init_pull <- function(demand_id = "EBA.US48-ALL.D.H",
   demand1 <- demand <- NULL
   
   tryCatch(
-    demand1<- eia_query(api_key = api_key, series_id  = demand_id) %>%
-      dplyr::mutate(type = "demand") %>%
-      dplyr::arrange(date_time),
+      demand1<- eia_query(api_key = api_key, series_id  = demand_id) %>%
+        dplyr::mutate(type = "demand") %>%
+        dplyr::arrange(date_time),
     
     error = function(c){
       base::message(paste("Error,", c, sep = " "))
